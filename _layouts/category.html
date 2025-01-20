@@ -1,10 +1,58 @@
 ---
-layout: archive
+layout: default
+author_profile: true
 ---
 
-{{ content }}
+{% if page.header.overlay_color or page.header.overlay_image or page.header.image %}
+  {% include page__hero.html %}
+{% elsif page.header.video.id and page.header.video.provider %}
+  {% include page__hero_video.html %}
+{% endif %}
 
-{% assign entries_layout = page.entries_layout | default: 'list' %}
-<div class="entries-{{ entries_layout }}">
-  {% include posts-category.html taxonomy=page.taxonomy type=entries_layout %}
+{% if page.url != "/" and site.breadcrumbs %}
+  {% unless paginator %}
+    {% include breadcrumbs.html %}
+  {% endunless %}
+{% endif %}
+
+<div id="main" role="main">
+  {% include sidebar.html %}
+
+  <div class="archive">
+    <!-- Display dynamic page title -->
+    {% unless page.header.overlay_color or page.header.overlay_image %}
+      <h1 id="page-title" class="page__title" {% if page.locale %} lang="{{ page.locale }}"{% endif %}>
+        {% if page.type == "tag" %}
+          <span>{{ page.title | upcase }}</span>
+        {% elsif page.type == "category" %}
+          <span>{{ page.title | upcase }}</span>
+        {% else %}
+          {{ page.title }}
+        {% endif %}
+      </h1>
+    {% endunless %}
+
+    <!-- Display posts for the tag or category -->
+    {% if page.posts %}
+      <ul class="post-list">
+        {% for post in page.posts %}
+          <li class="post-item">
+            <article>
+              <h2>
+                <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+              </h2>
+              <p class="post-meta">
+                Posted on {{ post.date | date: "%B %d, %Y" }}
+              </p>
+              <p class="post-excerpt">
+                {{ post.excerpt | strip_html | truncate: 200 }}
+              </p>
+            </article>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No posts found for this {{ page.type }}.</p>
+    {% endif %}
+  </div>
 </div>

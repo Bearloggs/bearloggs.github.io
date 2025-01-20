@@ -1,16 +1,14 @@
 ---
-title: "First Post"
+title: "Second Post"
 classes: wide
 categories:
-  - ml
+  - devsecops
 tags:
-  - ml
+  - devsecops
   - elastic
-  - python
-  - eland
 ---
 
-# First Post
+# Second Post
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque vitae faucibus purus, volutpat ultrices lectus. Suspendisse iaculis ante sit amet metus rutrum, nec blandit nunc venenatis. Aliquam fermentum rutrum vulputate. Maecenas sed molestie dui. Fusce varius ultricies erat, eget eleifend lectus ullamcorper eu. Morbi eros tellus, fermentum quis facilisis eget, tincidunt sit amet massa. Nam pretium dolor sed nulla facilisis dictum. Nulla tempus urna et arcu condimentum consequat. Curabitur ut elementum quam. Proin fermentum venenatis ligula pellentesque venenatis. Morbi egestas enim elit. Etiam ac metus malesuada, semper quam ut, volutpat urna. Aliquam consequat ante convallis ipsum interdum lobortis. Ut condimentum purus sem. In et magna in nibh dapibus finibus consectetur eu dolor.
 

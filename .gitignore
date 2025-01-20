@@ -29,8 +29,6 @@ codekit-config.json
 .jekyll-metadata
 .sass-cache
 _asset_bundler_cache
-_site
-
 
 .editorconfig
 .gitattributes
@@ -42,6 +40,3 @@ minimal-mistakes-jekyll.gemspec
 README.md
 screenshot-layouts.png
 screenshot.png
-
-# Draft
-*_draft.md

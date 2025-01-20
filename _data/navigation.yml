@@ -1,6 +1,6 @@
 # main links
 main:
   - title: "DevSecOps"
-    url: /tags/devsecops/
+    url: /categories/devsecops/
   - title: "ML"
-    url: /tags/ml/
+    url: /categories/ml/
