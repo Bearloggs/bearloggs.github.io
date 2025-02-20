@@ -1,0 +1,49 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import BlogPost from '../../components/BlogPost.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => {
+    return import.meta.env.PROD ? !data.draft : true;
+  });
+  
+  const tags = [...new Set(posts.flatMap(post => post.data.tags))];
+  
+  return tags.map(tag => ({
+    params: { tag },
+    props: {
+      posts: posts.filter(post => post.data.tags.includes(tag))
+        .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+    }
+  }));
+}
+
+const { tag } = Astro.params;
+const { posts } = Astro.props;
+---
+
+<Layout 
+  title={`Posts tagged with #${tag}`}
+  description={`All blog posts tagged with #${tag}`}
+>
+  <div class="mb-8">
+    <a 
+      href="/tags"
+      class="text-blue-600 dark:text-blue-400 hover:underline mb-4 inline-block"
+    >
+      ← All Tags
+    </a>
+    <h1 class="text-4xl font-bold">Posts tagged with #{tag}</h1>
+  </div>
+
+  <div class="grid gap-8">
+    {posts.map(post => <BlogPost post={post} />)}
+  </div>
+
+  {posts.length === 0 && (
+    <p class="text-gray-600 dark:text-gray-400 text-center py-8">
+      No posts found with this tag.
+    </p>
+  )}
+</Layout>

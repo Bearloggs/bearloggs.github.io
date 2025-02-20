@@ -1,0 +1,42 @@
+---
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('blog', ({ data }) => {
+  return import.meta.env.PROD ? !data.draft : true;
+});
+
+const tags = [...new Set(posts.flatMap(post => post.data.tags))].sort();
+
+// Count posts for each tag
+const tagCounts = tags.reduce((acc, tag) => {
+  acc[tag] = posts.filter(post => post.data.tags.includes(tag)).length;
+  return acc;
+}, {} as Record<string, number>);
+---
+
+<section class="py-12 bg-gray-50 dark:bg-gray-800">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="flex justify-between items-center mb-8">
+      <h2 class="text-3xl font-bold">Explore Topics</h2>
+      <a 
+        href="/tags" 
+        class="text-blue-600 dark:text-blue-400 hover:underline"
+      >
+        View All Tags →
+      </a>
+    </div>
+    <div class="flex flex-wrap gap-3">
+      {tags.map(tag => (
+        <a
+          href={`/tags/${tag}`}
+          class="px-4 py-2 bg-white dark:bg-gray-700 rounded-full text-sm hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors group flex items-center gap-2"
+        >
+          <span class="group-hover:text-blue-600 dark:group-hover:text-blue-400">#{tag}</span>
+          <span class="bg-gray-100 dark:bg-gray-600 px-2 py-0.5 rounded-full text-xs">
+            {tagCounts[tag]}
+          </span>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>

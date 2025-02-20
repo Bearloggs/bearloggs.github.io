@@ -1,0 +1,274 @@
+---
+const navItems = [
+  { href: '/', text: 'Home' },
+  { href: '/blog', text: 'Blog' },
+  { href: '/about', text: 'About' },
+];
+
+// Featured tags that will appear in the navbar
+const featuredTags = [
+  { tag: 'astro', label: 'Astro' },
+  { tag: 'javascript', label: 'JavaScript' },
+  { tag: 'webdev', label: 'Web Dev' },
+];
+---
+
+<nav class="bg-white dark:bg-gray-800 shadow-sm fixed w-full top-0 z-50">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="flex justify-between h-16">
+      <div class="flex items-center">
+        <div class="flex-shrink-0 flex items-center">
+          <a href="/" class="text-xl font-bold">Blog</a>
+        </div>
+        <!-- Desktop Menu -->
+        <div class="hidden md:ml-6 md:flex md:space-x-4">
+          {navItems.map(item => (
+            <a
+              href={item.href}
+              class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            >
+              {item.text}
+            </a>
+          ))}
+          <div class="border-l border-gray-200 dark:border-gray-700 mx-2"></div>
+          {featuredTags.map(({ tag, label }) => (
+            <a
+              href={`/tags/${tag}`}
+              class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            >
+              #{label}
+            </a>
+          ))}
+        </div>
+      </div>
+      
+      <div class="flex items-center space-x-4">
+        <a
+          href="/rss.xml"
+          class="hidden md:inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+          title="RSS Feed"
+        >
+          <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M5 3a1 1 0 000 2c5.523 0 10 4.477 10 10a1 1 0 102 0C17 8.373 11.627 3 5 3z" />
+            <path d="M4 9a1 1 0 011-1 7 7 0 017 7 1 1 0 11-2 0 5 5 0 00-5-5 1 1 0 01-1-1zM3 15a2 2 0 114 0 2 2 0 01-4 0z" />
+          </svg>
+          <span class="ml-1">RSS</span>
+        </a>
+
+        <button
+          id="theme-toggle"
+          class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+          aria-label="Toggle theme"
+        >
+          <svg
+            id="theme-toggle-dark-icon"
+            class="hidden w-5 h-5"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+          </svg>
+          <svg
+            id="theme-toggle-light-icon"
+            class="hidden w-5 h-5"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
+            ></path>
+          </svg>
+        </button>
+
+        <!-- Mobile menu button -->
+        <button
+          type="button"
+          id="mobile-menu-button"
+          class="md:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+          aria-controls="mobile-menu"
+          aria-expanded="false"
+        >
+          <span class="sr-only">Open main menu</span>
+          <!-- Hamburger icon -->
+          <svg
+            id="hamburger-icon"
+            class="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"
+            />
+          </svg>
+          <!-- Close icon -->
+          <svg
+            id="close-icon"
+            class="hidden h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile menu -->
+  <div id="mobile-menu" class="hidden md:hidden bg-white dark:bg-gray-800 shadow-lg">
+    <div class="px-2 pt-2 pb-3 space-y-1">
+      {navItems.map(item => (
+        <a
+          href={item.href}
+          class="block px-3 py-2 rounded-md text-base font-medium text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
+        >
+          {item.text}
+        </a>
+      ))}
+      <div class="border-t border-gray-200 dark:border-gray-700 my-2"></div>
+      {featuredTags.map(({ tag, label }) => (
+        <a
+          href={`/tags/${tag}`}
+          class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+        >
+          #{label}
+        </a>
+      ))}
+      <a
+        href="/rss.xml"
+        class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+      >
+        RSS Feed
+      </a>
+    </div>
+  </div>
+</nav>
+
+<div class="h-16"></div>
+
+<script>
+  class MobileMenu {
+    private mobileMenuButton: HTMLElement | null;
+    private mobileMenu: HTMLElement | null;
+    private hamburgerIcon: HTMLElement | null;
+    private closeIcon: HTMLElement | null;
+    private isMenuOpen: boolean;
+    private documentClickHandler: (event: MouseEvent) => void;
+
+    constructor() {
+      this.mobileMenuButton = document.getElementById('mobile-menu-button');
+      this.mobileMenu = document.getElementById('mobile-menu');
+      this.hamburgerIcon = document.getElementById('hamburger-icon');
+      this.closeIcon = document.getElementById('close-icon');
+      this.isMenuOpen = false;
+
+      // Bind the methods to the instance
+      this.toggleMenu = this.toggleMenu.bind(this);
+      this.documentClickHandler = this.handleDocumentClick.bind(this);
+
+      this.initialize();
+    }
+
+    private initialize() {
+      this.mobileMenuButton?.addEventListener('click', this.toggleMenu);
+      document.addEventListener('click', this.documentClickHandler);
+      this.mobileMenu?.addEventListener('click', (e) => e.stopPropagation());
+    }
+
+    private toggleMenu(event?: Event) {
+      if (event) {
+        event.stopPropagation();
+      }
+      this.isMenuOpen = !this.isMenuOpen;
+      this.mobileMenu?.classList.toggle('hidden');
+      this.hamburgerIcon?.classList.toggle('hidden');
+      this.closeIcon?.classList.toggle('hidden');
+      this.mobileMenuButton?.setAttribute('aria-expanded', this.isMenuOpen.toString());
+    }
+
+    private handleDocumentClick(event: MouseEvent) {
+      const target = event.target as HTMLElement;
+      if (
+        this.isMenuOpen &&
+        !target.closest('#mobile-menu') &&
+        !target.closest('#mobile-menu-button')
+      ) {
+        this.toggleMenu();
+      }
+    }
+
+    public cleanup() {
+      this.mobileMenuButton?.removeEventListener('click', this.toggleMenu);
+      document.removeEventListener('click', this.documentClickHandler);
+    }
+  }
+
+  class ThemeToggle {
+    private themeToggle: HTMLElement | null;
+    private darkIcon: HTMLElement | null;
+    private lightIcon: HTMLElement | null;
+
+    constructor() {
+      this.themeToggle = document.getElementById('theme-toggle');
+      this.darkIcon = document.getElementById('theme-toggle-dark-icon');
+      this.lightIcon = document.getElementById('theme-toggle-light-icon');
+
+      this.initialize();
+    }
+
+    private initialize() {
+      this.updateIcons();
+      this.themeToggle?.addEventListener('click', () => this.toggleTheme());
+    }
+
+    private updateIcons() {
+      const isDark = document.documentElement.classList.contains('dark');
+      this.darkIcon?.classList.toggle('hidden', isDark);
+      this.lightIcon?.classList.toggle('hidden', !isDark);
+    }
+
+    private toggleTheme() {
+      document.documentElement.classList.toggle('dark');
+      this.updateIcons();
+      
+      localStorage.setItem(
+        'theme',
+        document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+      );
+    }
+  }
+
+  // Initialize components
+  let mobileMenu: MobileMenu | null = null;
+  let themeToggle: ThemeToggle | null = null;
+
+  function initializeNavbar() {
+    // Cleanup existing instances
+    if (mobileMenu) {
+      mobileMenu.cleanup();
+      mobileMenu = null;
+    }
+
+    // Create new instances
+    mobileMenu = new MobileMenu();
+    themeToggle = new ThemeToggle();
+  }
+
+  // Initialize on page load
+  initializeNavbar();
+
+  // Re-initialize after view transitions
+  document.addEventListener('astro:after-swap', initializeNavbar);
+</script>

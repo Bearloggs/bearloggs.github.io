@@ -1,0 +1,69 @@
+---
+import Layout from '../layouts/Layout.astro';
+import SocialLinks from '../components/SocialLinks.astro';
+---
+
+<Layout
+  title="About Me"
+  description="Learn more about me and my background in technology and development."
+>
+  <article class="prose dark:prose-invert lg:prose-lg mx-auto">
+    <div class="text-center mb-12">
+      <img
+        src="/profile-image.jpg"
+        alt="Your Name"
+        class="w-48 h-48 rounded-full mx-auto mb-6"
+        width="192"
+        height="192"
+      />
+      <h1 class="mb-4">About Me</h1>
+      <div class="flex justify-center mb-8">
+        <SocialLinks />
+      </div>
+    </div>
+
+    <div class="space-y-6">
+      <section>
+        <h2>Hello, I'm [Your Name]! 👋</h2>
+        <p>
+          I'm a passionate developer with expertise in web development, cloud architecture, and DevOps practices. 
+          With over [X] years of experience in the tech industry, I've worked on various projects ranging from 
+          small web applications to large-scale enterprise solutions.
+        </p>
+      </section>
+
+      <section>
+        <h2>What I Do</h2>
+        <p>
+          Currently, I focus on:
+        </p>
+        <ul>
+          <li>Building scalable web applications</li>
+          <li>Implementing DevSecOps practices</li>
+          <li>Cloud architecture and optimization</li>
+          <li>Writing technical articles and documentation</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Technical Skills</h2>
+        <ul>
+          <li>Languages: JavaScript/TypeScript, Python, Go</li>
+          <li>Frontend: React, Vue.js, Astro</li>
+          <li>Backend: Node.js, Django, FastAPI</li>
+          <li>Cloud: AWS, GCP, Azure</li>
+          <li>DevOps: Docker, Kubernetes, CI/CD</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Get in Touch</h2>
+        <p>
+          I'm always interested in connecting with fellow developers and technology enthusiasts. 
+          Feel free to reach out to me through any of my social media profiles above or via email 
+          at <a href="mailto:your.email@example.com">your.email@example.com</a>.
+        </p>
+      </section>
+    </div>
+  </article>
+</Layout>

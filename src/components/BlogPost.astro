@@ -1,0 +1,42 @@
+---
+import { type CollectionEntry } from 'astro:content';
+import FormattedDate from './FormattedDate.astro';
+
+type Props = {
+  post: CollectionEntry<'blog'>;
+};
+
+const { post } = Astro.props;
+---
+
+<article class="group bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow p-4 md:p-6">
+  <a href={`/blog/${post.slug}/`} class="block no-underline">
+    {post.data.heroImage && (
+      <img
+        src={post.data.heroImage}
+        alt=""
+        class="rounded-lg shadow-md mb-4 transition-transform group-hover:scale-[1.02] w-full h-48 object-cover"
+      />
+    )}
+    <h2 class="text-xl md:text-2xl font-bold mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 line-clamp-2">
+      {post.data.title}
+    </h2>
+    <div class="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-2">
+      <FormattedDate date={post.data.pubDate} />
+      {post.data.updatedDate && (
+        <span>(Updated: <FormattedDate date={post.data.updatedDate} />)</span>
+      )}
+    </div>
+    <p class="text-gray-700 dark:text-gray-300 line-clamp-3">{post.data.description}</p>
+    <div class="flex flex-wrap gap-2 mt-4">
+      {post.data.tags.map((tag) => (
+        <a
+          href={`/tags/${tag}/`}
+          class="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+        >
+          #{tag}
+        </a>
+      ))}
+    </div>
+  </a>
+</article>

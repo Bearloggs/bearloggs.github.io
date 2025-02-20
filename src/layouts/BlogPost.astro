@@ -1,0 +1,51 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import Layout from './Layout.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import TableOfContents from '../components/TableOfContents.astro';
+
+type Props = CollectionEntry<'blog'>['data'] & {
+  headings: Array<{ depth: number; slug: string; text: string }>;
+};
+
+const { title, description, pubDate, updatedDate, heroImage, tags, headings } = Astro.props;
+---
+
+<Layout title={title} description={description} image={heroImage} article={true}>
+  <div class="flex gap-8">
+    <article class="prose dark:prose-invert lg:prose-lg max-w-none flex-1">
+      {heroImage && <img src={heroImage} alt="" class="w-full rounded-lg shadow-lg mb-6" />}
+      <h1 class="mb-2">{title}</h1>
+      <div class="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-8 -mt-4">
+        <FormattedDate date={pubDate} />
+        {updatedDate && (
+          <span>(Updated: <FormattedDate date={updatedDate} />)</span>
+        )}
+      </div>
+      <div class="flex gap-2 mb-8">
+        {tags.map((tag) => (
+          <a
+            href={`/tags/${tag}/`}
+            class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors no-underline"
+          >
+            #{tag}
+          </a>
+        ))}
+      </div>
+      <slot />
+    </article>
+    <TableOfContents headings={headings} />
+  </div>
+</Layout>
+
+<style is:global>
+  /* Anchor link styles */
+  .anchor-link {
+    @apply ml-2 text-gray-400 opacity-0 transition-opacity;
+  }
+
+  h2:hover .anchor-link,
+  h3:hover .anchor-link {
+    @apply opacity-100;
+  }
+</style>
