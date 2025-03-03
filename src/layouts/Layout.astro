@@ -1,8 +1,6 @@
 ---
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
-import ConsentBanner from '../components/ConsentBanner.astro';
-import GoogleAnalytics from '../components/GoogleAnalytics.astro';
 import { ViewTransitions } from 'astro:transitions';
 
 interface Props {
@@ -41,23 +39,46 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta name="title" content={title} />
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalURL} />
-    
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content={article ? "article" : "website"} />
-    <meta property="og:url" content={canonicalURL} />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
-    <meta property="og:image" content={new URL(image, Astro.url)} />
-    
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content={canonicalURL} />
-    <meta property="twitter:title" content={title} />
-    <meta property="twitter:description" content={description} />
-    <meta property="twitter:image" content={new URL(image, Astro.url)} />
 
-    <!-- Google Analytics Component -->
-    <GoogleAnalytics />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orestbida/cookieconsent@3.0.1/dist/cookieconsent.css"
+    />    
+
+    <script
+      is:inline
+      type="text/partytown"
+      src="https://www.googletagmanager.com/gtag/js?id=GTM-MCSQN49N"
+    ></script>
+
+    <script is:inline type="text/partytown">
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+
+      <!-- This is the important part! -->
+      gtag("consent", "default", {
+          ad_storage: "denied",
+          ad_user_data: "denied",
+          ad_personalization: "denied",
+          analytics_storage: "denied",
+      });
+
+      gtag("config", "GTM-MCSQN49N");
+    </script>
+
+    <script is:inline data-category="analytics">
+      function updateConsents() {
+        gtag("consent", "update", {
+          ad_storage: "granted",
+          ad_user_data: "granted",
+          ad_personalization: "granted",
+          analytics_storage: "granted",
+        });
+      }
+    </script>
 
     <ViewTransitions />
     
@@ -79,12 +100,14 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     </script>
   </head>
   <body class="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+
+    <script type="module" src="/src/scripts/cookieconsent-config.js"></script>
+
     <Navbar />
     <main class="max-w-6xl mx-auto px-4 py-8">
       <slot />
     </main>
     <Footer />
-    <ConsentBanner />
   </body>
 </html>
 

@@ -41,8 +41,7 @@ export default defineConfig({
     tailwind(),
     partytown({
       config: {
-        forward: ["dataLayer.push", "gtag"],
-        debug: false
+        forward: ["dataLayer.push"]
       }
     })
   ]
