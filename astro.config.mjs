@@ -2,6 +2,7 @@ import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import tailwind from '@astrojs/tailwind';
+import partytown from '@astrojs/partytown';
 import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 
@@ -37,6 +38,12 @@ export default defineConfig({
       ]
     }),
     sitemap(),
-    tailwind()
+    tailwind(),
+    partytown({
+      config: {
+        forward: ["dataLayer.push", "gtag"],
+        debug: false
+      }
+    })
   ]
 });
