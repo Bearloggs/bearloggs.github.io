@@ -1,0 +1,391 @@
+---
+title: 'PDF Analysis'
+description: 'How to analyze pdf files?'
+pubDate: 2024-04-24
+tags: ['dfir', 'malware analysis']
+---
+
+# PDF Analysis in DFIR
+
+## Understanding the PDF Threat Landscape
+
+PDF files have evolved into a sophisticated attack vector for cybercriminals. The format's ubiquity, complexity, and support for interactive features create an attractive environment for attackers.
+
+### Malicious JavaScript Execution
+
+PDF files can contain embedded JavaScript that executes automatically when the document is opened. This capability is legitimately used for form validation, calculations, and interactive elements. However, attackers leverage this functionality to:
+* Execute shellcode directly in memory
+* Download additional payloads from remote servers
+* Exploit vulnerabilities in the PDF reader's JavaScript engine
+
+### Embedded Malware and Droppers
+
+PDF specifications allow for embedding various file formats within documents, including:
+* Executable files (.exe, .dll)
+* Scripts (.js, .vbs, .ps1)
+* Other document formats (.doc, .xls)
+
+These embedded files can be extracted and executed through JavaScript functions or when a user interacts with an embedded object. This technique often bypasses perimeter defenses that might otherwise block executable files.
+
+### Social Engineering in PDF Attacks
+
+Attackers frequently use well-crafted social engineering tactics in malicious PDFs:
+* Impersonating trusted entities like banks, government agencies, or vendors
+* Creating falsified invoices with modified payment details
+* Using urgent language to prompt immediate action
+* Including convincing branding and formatting
+
+### Manipulated Business Documents
+
+Invoice fraud represents a particularly lucrative attack vector. As highlighted in the CIRCL course, attackers often:
+* Modify legitimate invoices to change payment information
+* Create entirely fraudulent invoices that appear legitimate
+* Alter document details while preserving official-looking formatting
+* Insert manipulated signature images for apparent authenticity
+
+## Step-by-Step PDF Analysis Methodology
+
+### 1. Initial Assessment and File Handling
+
+Before beginning detailed analysis, proper handling and basic assessment are crucial.
+
+**Calculate and document file hashes**:
+```bash
+# Generate MD5 hash
+md5sum suspicious.pdf
+
+# Generate SHA-256 hash
+sha256sum suspicious.pdf
+```
+
+**Identify the file type and validate the format**:
+```bash
+# Validate file type
+file suspicious.pdf
+
+# Examine header bytes
+head -c 20 suspicious.pdf
+```
+
+**Check file size for anomalies**:
+```bash
+# Get file size
+ls -la suspicious.pdf
+```
+
+**Make a working copy to preserve the original**:
+```bash
+# Create a working copy
+cp suspicious.pdf working_copy.pdf
+```
+
+### 2. Metadata Extraction and Analysis
+
+PDF metadata provides valuable context about the document's creation and modifications.
+
+**Extract basic metadata**:
+```bash
+# Using exiftool
+exiftool suspicious.pdf
+
+# Using pdfinfo
+pdfinfo suspicious.pdf
+```
+
+**Look for discrepancies in timestamps**:
+```bash
+# Extract creation and modification dates
+pdfinfo -meta suspicious.pdf | grep -E 'CreationDate|ModDate'
+```
+
+**Identify creator applications and modification tools**:
+```bash
+# Extract creator and producer information
+pdfinfo suspicious.pdf | grep -E 'Creator|Producer'
+```
+
+During this phase, document any inconsistencies such as:
+* Creation dates newer than modification dates
+* Creation tools that don't match the document's purported source
+* Metadata that has been stripped completely (may indicate deliberate sanitization)
+
+### 3. Basic Structural Analysis
+
+Analyzing the PDF structure provides insights into potential malicious components.
+
+**Get an overview of PDF components with pdfid**:
+```bash
+# Basic PDF structure analysis
+pdfid.py suspicious.pdf
+```
+
+Key indicators to watch for in the pdfid output:
+* Presence of /JavaScript objects
+* /OpenAction or /AA (Additional Actions) dictionaries
+* /Launch actions that might execute code
+* /URI actions that could contact remote servers
+* /EmbeddedFile entries that might contain malware
+* /AcroForm elements that could contain malicious scripts
+
+**Count and verify objects in the PDF**:
+```bash
+# Count objects using grep
+strings suspicious.pdf | grep -c "obj"
+strings suspicious.pdf | grep -c "endobj"
+
+# Count stream objects
+strings suspicious.pdf | grep -c "stream"
+strings suspicious.pdf | grep -c "endstream"
+```
+
+Unequal counts of opening and closing tags can indicate corrupted or maliciously crafted files.
+
+### 4. Deep Structural Analysis
+
+After basic assessment, a deeper examination of the document structure is necessary.
+
+**Analyze the PDF structure with pdf-parser**:
+```bash
+# List all objects
+pdf-parser.py suspicious.pdf
+
+# Examine the document catalog
+pdf-parser.py -o 1 suspicious.pdf
+
+# Find all references to specific elements
+pdf-parser.py -s /JavaScript suspicious.pdf
+pdf-parser.py -s /OpenAction suspicious.pdf
+pdf-parser.py -s /AA suspicious.pdf
+pdf-parser.py -s /Launch suspicious.pdf
+pdf-parser.py -s /URI suspicious.pdf
+pdf-parser.py -s /EmbeddedFile suspicious.pdf
+pdf-parser.py -s /AcroForm suspicious.pdf
+```
+
+**Examine objects with references to other objects**:
+```bash
+# Find objects that reference object 5
+pdf-parser.py -r 5 suspicious.pdf
+```
+
+**Analyze automatic actions**:
+```bash
+# Look for document opening actions
+pdf-parser.py -s /OpenAction suspicious.pdf
+
+# Examine additional actions
+pdf-parser.py -s /AA suspicious.pdf
+```
+
+During this analysis, pay special attention to:
+* Objects containing compressed streams (may hide malicious content)
+* Unusual object relationships or reference chains
+* Objects containing encoded data (/Filter directives)
+
+### 5. JavaScript Extraction and Analysis
+
+If JavaScript is present in a PDF, it requires thorough examination and deobfuscation.
+
+**Extract JavaScript from the PDF**:
+```bash
+# Find JavaScript objects
+pdf-parser.py -s /JavaScript suspicious.pdf
+
+# Extract JavaScript from a specific object
+pdf-parser.py -o [object_number] -f suspicious.pdf > extracted_js.txt
+```
+
+**Use tools for JavaScript extraction**:
+```bash
+# Extract all JavaScript with pdf-parser
+pdf-parser.py -a suspicious.pdf | grep -A 50 "/JavaScript" > all_javascript.txt
+```
+
+Analyze the JavaScript for:
+* `eval()` functions that execute dynamically generated code
+* String manipulation that builds commands or shellcode
+* Suspicious URLs or domains
+* Heap-spray techniques (large repeating string patterns)
+* Encoded payload strings (Base64, hex, or custom encoding)
+
+### 6. Extracting and Analyzing Embedded Content
+
+Embedded files and images may contain malicious code or reveal manipulation.
+
+**Extract embedded files**:
+```bash
+# Identify embedded files
+pdf-parser.py -s /EmbeddedFile suspicious.pdf
+
+# Extract embedded file from a specific object
+pdf-parser.py -o [object_number] -f -d extracted_file suspicious.pdf
+```
+
+**Extract and analyze images**:
+```bash
+# Find image objects
+pdf-parser.py -s /XObject suspicious.pdf
+
+# Extract image from a specific object
+pdf-parser.py -o [object_number] -d extracted_image.jpg suspicious.pdf
+```
+
+For extracted files:
+* Calculate hashes and check against threat intelligence
+* Perform separate malware analysis if an executable is found
+* Analyze extracted images for signs of manipulation or forgery
+
+### 7. Analyzing Business Document Manipulation
+
+When analyzing potentially manipulated invoices or business documents, focus on the elements most likely to be tampered with.
+
+**Extract and examine text content**:
+```bash
+# Extract text from the PDF
+pdftotext suspicious.pdf extracted_text.txt
+
+# Search for specific patterns like payment details
+grep -E "account|payment|bank|transfer" extracted_text.txt
+```
+
+**Check for text added in separate objects**:
+```bash
+# Look for text objects
+pdf-parser.py -s "/T(" suspicious.pdf
+
+# Examine font objects that might be added
+pdf-parser.py -s /FontFile suspicious.pdf
+```
+
+When analyzing business documents, watch for:
+* Text objects added after the original document creation
+* Payment details that differ in font, positioning, or formatting
+* Signature images with different metadata than the document
+* Incremental updates that modify critical information
+
+### 8. Stream Decompression and Analysis
+
+PDF streams are often compressed. Decompressing them can reveal hidden content.
+
+**Identify compressed streams**:
+```bash
+# Find objects with compression filters
+pdf-parser.py -s /FlateDecode suspicious.pdf
+```
+
+**Decompress and examine stream content**:
+```bash
+# Decompress stream from a specific object
+pdf-parser.py -o [object_number] -f suspicious.pdf > decompressed_stream.txt
+```
+
+**Search for specific patterns in decompressed streams**:
+```bash
+# Look for JavaScript hidden in streams
+pdf-parser.py -a suspicious.pdf | grep -A 50 "/JS" > potential_js_in_streams.txt
+```
+
+In decompressed streams, look for:
+* Obfuscated commands or code fragments
+* Encoded binaries or shellcode
+* Hidden script elements not identified in earlier analysis
+* URLs, IP addresses, or domain names
+
+## Practical Analysis Techniques and Challenges
+
+### Extracting Embedded Objects: Challenges and Solutions
+
+**Challenge: Multi-layer Encoding**
+
+Objects may use multiple encoding layers to hide content:
+
+```bash
+# Handle multiple encoding layers
+pdf-parser.py -o [object_number] -f suspicious.pdf > encoded.txt
+cat encoded.txt | base64 -d > decoded_layer1.bin
+cat decoded_layer1.bin | xxd -r -p > decoded_layer2.bin
+```
+
+**Challenge: Custom or Uncommon Filters**
+
+Some PDFs use custom or obscure filters:
+
+```bash
+# Identify non-standard filters
+pdf-parser.py suspicious.pdf | grep -E "/Filter\s*\[" -A 5
+
+# Extract raw data for manual decoding
+pdf-parser.py -o [object_number] -d raw_data.bin suspicious.pdf
+```
+
+**Solution: Custom-Built Decoders**
+
+For proprietary encodings, it might be necessary to build custom decoders based on observed patterns.
+
+### Analyzing Active Components: Challenges and Solutions
+
+**Challenge: Heavily Obfuscated JavaScript**
+
+JavaScript can be obfuscated through multiple techniques:
+
+```bash
+# Progressive deobfuscation approach
+# Step 1: Extract and format
+pdf-parser.py -o [js_object_number] -f suspicious.pdf > obfuscated.js
+js-beautify obfuscated.js > formatted.js
+
+# Step 2: Replace eval with console.log to see execution results
+sed 's/eval(/console.log(/g' formatted.js > stage1.js
+
+# Step 3: Execute in controlled environment to see deobfuscated content
+node --inspect-brk stage1.js
+```
+
+**Challenge: Split JavaScript**
+
+Code may be split across multiple objects:
+
+```bash
+# Find all JavaScript fragments
+pdf-parser.py -a suspicious.pdf | grep -A 10 "/JS" > all_js_fragments.txt
+
+# Reconstruct by examining object relationships
+pdf-parser.py -o [parent_object] suspicious.pdf
+```
+
+**Solution: Dynamic Analysis in Sandbox**
+
+When static analysis reaches its limits, dynamic analysis becomes necessary:
+
+```bash
+# Run the PDF in a controlled environment
+# Note: This would typically use specialized sandbox tools
+```
+
+### Dealing with Encryption and Password Protection
+
+**Challenge: Encrypted PDF Content**
+
+Encrypted PDFs require special handling:
+
+```bash
+# Identify encryption
+pdfid.py suspicious.pdf | grep -E "/Encrypt|/Encrypt "
+
+# Check encryption details
+pdf-parser.py -s /Encrypt suspicious.pdf
+```
+
+## Conclusion
+
+PDF analysis in digital forensics and incident response requires a methodical approach combining multiple tools and techniques. Starting with basic structural analysis and progressing through detailed examination of document components, analysts can identify both malicious elements and subtle document manipulations.
+
+The complex nature of the PDF format presents various challenges, from obfuscation techniques to format variants and encryption. By understanding these challenges and applying appropriate analytical techniques, investigators can effectively navigate the complexities of PDF analysis in security investigations.
+
+As both attack and defensive technologies evolve, maintaining awareness of emerging PDF-based threats and analysis techniques remains essential for effective digital forensics and incident response.
+
+## Reference
+
+* https://isc.sans.edu/diary/30184
+* https://blog.didierstevens.com/programs/pdf-tools/
+* https://blog.didierstevens.com/2019/03/07/analyzing-a-phishing-pdf-with-objstm/
