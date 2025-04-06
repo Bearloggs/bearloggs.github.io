@@ -93,9 +93,9 @@ const ogImage = new URL(image, Astro.site);
       })} />
     )}
   </head>
-  <body class="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+  <body class="min-h-screen flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
     <Navbar />
-    <main class="max-w-6xl mx-auto px-4 py-8" role="main">
+    <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-8" role="main">
       <slot />
     </main>
     <Footer />
