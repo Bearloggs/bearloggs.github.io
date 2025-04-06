@@ -8,18 +8,36 @@ type Props = CollectionEntry<'blog'>['data'] & {
   headings: Array<{ depth: number; slug: string; text: string }>;
 };
 
-const { title, description, pubDate, updatedDate, heroImage, tags, headings } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, tags, headings, author = "Your Name" } = Astro.props;
 ---
 
-<Layout title={title} description={description} image={heroImage} article={true}>
+<Layout 
+  title={title} 
+  description={description} 
+  image={heroImage} 
+  article={true}
+  publishDate={pubDate.toISOString()}
+  author={author}
+>
   <div class="flex gap-8">
-    <article class="prose dark:prose-invert lg:prose-lg max-w-none flex-1">
-      {heroImage && <img src={heroImage} alt="" class="w-full rounded-lg shadow-lg mb-6" />}
-      <h1 class="mb-2">{title}</h1>
+    <article class="prose dark:prose-invert lg:prose-lg max-w-none flex-1" itemscope itemtype="https://schema.org/BlogPosting">
+      {heroImage && (
+        <img 
+          src={heroImage} 
+          alt={`Hero image for ${title}`} 
+          class="w-full rounded-lg shadow-lg mb-6"
+          itemprop="image"
+        />
+      )}
+      <h1 class="mb-2" itemprop="headline">{title}</h1>
       <div class="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-8 -mt-4">
-        <FormattedDate date={pubDate} />
+        <time datetime={pubDate.toISOString()} itemprop="datePublished">
+          <FormattedDate date={pubDate} />
+        </time>
         {updatedDate && (
-          <span>(Updated: <FormattedDate date={updatedDate} />)</span>
+          <time datetime={updatedDate.toISOString()} itemprop="dateModified">
+            (Updated: <FormattedDate date={updatedDate} />)
+          </time>
         )}
       </div>
       <div class="flex gap-2 mb-8">
@@ -27,12 +45,15 @@ const { title, description, pubDate, updatedDate, heroImage, tags, headings } = 
           <a
             href={`/tags/${tag}/`}
             class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors no-underline"
+            rel="tag"
           >
             #{tag}
           </a>
         ))}
       </div>
-      <slot />
+      <div itemprop="articleBody">
+        <slot />
+      </div>
     </article>
     <TableOfContents headings={headings} />
   </div>

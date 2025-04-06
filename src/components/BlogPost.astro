@@ -2,37 +2,75 @@
 import { type CollectionEntry } from 'astro:content';
 import FormattedDate from './FormattedDate.astro';
 
-type Props = {
+interface Props {
   post: CollectionEntry<'blog'>;
-};
+}
 
 const { post } = Astro.props;
+
+// Generate a unique ID for the article
+const articleId = `post-${post.slug}`;
+
+// Format the date for structured data
+const formattedDate = post.data.pubDate.toISOString();
+const formattedUpdatedDate = post.data.updatedDate?.toISOString();
 ---
 
-<article class="group bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow p-4 md:p-6">
-  <a href={`/blog/${post.slug}/`} class="block no-underline">
+<article 
+  id={articleId}
+  class="group bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow p-4 md:p-6"
+  itemscope 
+  itemtype="https://schema.org/BlogPosting"
+>
+  <a 
+    href={`/blog/${post.slug}/`} 
+    class="block no-underline"
+    aria-label={`Read more about ${post.data.title}`}
+  >
     {post.data.heroImage && (
       <img
         src={post.data.heroImage}
-        alt=""
+        alt={`Hero image for ${post.data.title}`}
         class="rounded-lg shadow-md mb-4 transition-transform group-hover:scale-[1.02] w-full h-48 object-cover"
+        loading="lazy"
+        itemprop="image"
       />
     )}
-    <h2 class="text-xl md:text-2xl font-bold mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 line-clamp-2">
+    <h2 
+      class="text-xl md:text-2xl font-bold mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 line-clamp-2"
+      itemprop="headline"
+    >
       {post.data.title}
     </h2>
-    <div class="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-2">
-      <FormattedDate date={post.data.pubDate} />
+    <div 
+      class="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-2"
+      itemprop="datePublished"
+    >
+      <time datetime={formattedDate}>
+        <FormattedDate date={post.data.pubDate} />
+      </time>
       {post.data.updatedDate && (
-        <span>(Updated: <FormattedDate date={post.data.updatedDate} />)</span>
+        <time 
+          datetime={formattedUpdatedDate}
+          itemprop="dateModified"
+        >
+          (Updated: <FormattedDate date={post.data.updatedDate} />)
+        </time>
       )}
     </div>
-    <p class="text-gray-700 dark:text-gray-300 line-clamp-3">{post.data.description}</p>
+    <p 
+      class="text-gray-700 dark:text-gray-300 line-clamp-3"
+      itemprop="description"
+    >
+      {post.data.description}
+    </p>
     <div class="flex flex-wrap gap-2 mt-4">
       {post.data.tags.map((tag) => (
         <a
           href={`/tags/${tag}/`}
           class="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+          rel="tag"
+          aria-label={`View all posts tagged with ${tag}`}
         >
           #{tag}
         </a>
@@ -40,3 +78,34 @@ const { post } = Astro.props;
     </div>
   </a>
 </article>
+
+<script define:vars={{ articleId, post }}>
+  // Add structured data for better SEO
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": post.data.title,
+    "description": post.data.description,
+    "image": post.data.heroImage,
+    "datePublished": post.data.pubDate.toISOString(),
+    "dateModified": post.data.updatedDate?.toISOString() || post.data.pubDate.toISOString(),
+    "author": {
+      "@type": "Person",
+      "name": "Your Name"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "HacknWatch",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "/logo.png"
+      }
+    }
+  };
+
+  // Add the structured data to the page
+  const script = document.createElement('script');
+  script.type = 'application/ld+json';
+  script.text = JSON.stringify(structuredData);
+  document.head.appendChild(script);
+</script>
