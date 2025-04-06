@@ -184,6 +184,10 @@ const featuredTags: FeaturedTag[] = [
 <div class="h-16"></div>
 
 <script>
+  // Global instances to track
+  let mobileMenuInstance: MobileMenu | null = null;
+  let themeToggleInstance: ThemeToggle | null = null;
+
   interface MobileMenuElements {
     button: HTMLElement | null;
     menu: HTMLElement | null;
@@ -209,9 +213,11 @@ const featuredTags: FeaturedTag[] = [
     }
 
     private initialize(): void {
-      this.elements.button?.addEventListener('click', (e) => this.toggleMenu(e));
+      if (!this.elements.button || !this.elements.menu) return;
+      
+      this.elements.button.addEventListener('click', (e) => this.toggleMenu(e));
       document.addEventListener('click', this.documentClickHandler);
-      this.elements.menu?.addEventListener('click', (e) => e.stopPropagation());
+      this.elements.menu.addEventListener('click', (e) => e.stopPropagation());
     }
 
     private toggleMenu(event?: Event): void {
@@ -237,7 +243,9 @@ const featuredTags: FeaturedTag[] = [
     }
 
     public cleanup(): void {
-      this.elements.button?.removeEventListener('click', (e) => this.toggleMenu(e));
+      if (!this.elements.button) return;
+      
+      this.elements.button.removeEventListener('click', (e) => this.toggleMenu(e));
       document.removeEventListener('click', this.documentClickHandler);
     }
   }
@@ -251,6 +259,7 @@ const featuredTags: FeaturedTag[] = [
   class ThemeToggle {
     private elements: ThemeElements;
     private prefersDark: boolean;
+    private mediaQuery: MediaQueryList;
 
     constructor() {
       this.elements = {
@@ -258,16 +267,19 @@ const featuredTags: FeaturedTag[] = [
         darkIcon: document.getElementById('theme-toggle-dark-icon'),
         lightIcon: document.getElementById('theme-toggle-light-icon'),
       };
-      this.prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      this.mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      this.prefersDark = this.mediaQuery.matches;
       this.initialize();
     }
 
     private initialize(): void {
+      if (!this.elements.toggle) return;
+      
       this.updateTheme();
-      this.elements.toggle?.addEventListener('click', () => this.toggleTheme());
+      this.elements.toggle.addEventListener('click', () => this.toggleTheme());
       
       // Listen for system theme changes
-      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+      this.mediaQuery.addEventListener('change', (e) => {
         this.prefersDark = e.matches;
         this.updateTheme();
       });
@@ -295,12 +307,29 @@ const featuredTags: FeaturedTag[] = [
     }
   }
 
-  // Initialize components
-  const mobileMenu = new MobileMenu();
-  const themeToggle = new ThemeToggle();
+  // Function to initialize all components
+  function initializeComponents() {
+    // Clean up existing instances
+    if (mobileMenuInstance) {
+      mobileMenuInstance.cleanup();
+      mobileMenuInstance = null;
+    }
+    
+    // Create new instances
+    mobileMenuInstance = new MobileMenu();
+    themeToggleInstance = new ThemeToggle();
+  }
 
+  // Initialize on page load
+  initializeComponents();
+
+  // Re-initialize after view transitions
+  document.addEventListener('astro:after-swap', initializeComponents);
+  
   // Cleanup on page unload
   window.addEventListener('unload', () => {
-    mobileMenu.cleanup();
+    if (mobileMenuInstance) {
+      mobileMenuInstance.cleanup();
+    }
   });
 </script>
