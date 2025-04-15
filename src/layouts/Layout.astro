@@ -10,15 +10,17 @@ interface Props {
   article?: boolean;
   publishDate?: string;
   author?: string;
+  keywords?: string;
 }
 
 const {
   title,
-  description = "A personal blog about technology and development",
+  description = "A personal blog about Cybersecurity",
   image = "/default-og.png",
   article = false,
   publishDate,
-  author = "Bearloggs"
+  author = "Bearloggs",
+  keywords = "cybersecurity, devsecops, mlops"
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
@@ -43,11 +45,27 @@ const ogImage = new URL(image, Astro.site);
     <title>{title}</title>
     <meta name="title" content={title} />
     <meta name="description" content={description} />
+    <meta name="keywords" content={keywords} />
     <link rel="canonical" href={canonicalURL} />
     
-    <!-- Robots Meta Tag -->
+    <!-- Robots Meta Tags -->
     <meta name="robots" content="index, follow" />
     <meta name="googlebot" content="index, follow" />
+    <meta name="revisit-after" content="7 days" />
+    <meta name="author" content={author} />
+    
+    <!-- Language Meta Tags -->
+    <meta name="language" content="English" />
+    <link rel="alternate" hreflang="en" href={canonicalURL} />
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:type" content={article ? "article" : "website"} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:site_name" content="HacknWatch" />
+    <meta property="og:locale" content="en_US" />
 
     <ViewTransitions />
     
@@ -82,14 +100,40 @@ const ogImage = new URL(image, Astro.site);
         },
         "publisher": {
           "@type": "Organization",
-          "name": "Your Site Name",
+          "name": "HacknWatch",
+          "logo": {
+            "@type": "ImageObject",
+            "url": new URL("/favicon-32x32.png", Astro.site)
+          }
+        },
+        "datePublished": publishDate,
+        "dateModified": publishDate,
+        "mainEntityOfPage": {
+          "@type": "WebPage",
+          "@id": canonicalURL
+        },
+        "keywords": keywords,
+        "inLanguage": "en-US"
+      })} />
+    )}
+    
+    <!-- Default Structured Data for non-article pages -->
+    {!article && (
+      <script type="application/ld+json" set:html={JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "HacknWatch",
+        "url": Astro.site,
+        "description": description,
+        "publisher": {
+          "@type": "Organization",
+          "name": "HacknWatch",
           "logo": {
             "@type": "ImageObject",
             "url": new URL("/logo.png", Astro.site)
           }
         },
-        "datePublished": publishDate,
-        "dateModified": publishDate
+        "inLanguage": "en-US"
       })} />
     )}
   </head>
