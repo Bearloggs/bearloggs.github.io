@@ -1,0 +1,259 @@
+---
+title: 'Proxmox VE Hardening Guide'
+description: 'Secure your Proxmox VE for Internet exposure using both OS- and application-level defenses: a random high-numbered SSH port, strict UFW firewalling, WireGuard VPN, and only VPN-based access for admin and SSH.'
+pubDate: 2025-04-15
+tags: ['proxmox', 'hardening', 'linux', 'devsecops']
+---
+
+# Proxmox VE Hardening Guide (Debian, VPN-Only Admin, Custom SSH Port)
+
+> Secure your Proxmox VE for Internet exposure using both OS- and application-level defenses: a random high-numbered SSH port, strict UFW firewalling, WireGuard VPN, and only VPN-based access for admin and SSH.
+
+---
+⚠️ **Warning: This Is Not an Exhaustive Security Checklist**
+
+- This guide covers essential steps for securing your server, but **it is not a complete or exhaustive list** of all possible security measures.
+- **Your specific environment may require additional precautions.** Review all relevant documentation, stay informed about current vulnerabilities, and regularly update your security practices.
+- **Be extremely careful**: Changing firewall, SSH, or VPN settings can lock you out if misconfigured. Always test changes in a separate session and ensure you have a way to recover access (such as console, KVM, or rescue mode) before proceeding.
+
+**Security is an ongoing process. Stay vigilant and adapt as your setup and the threat landscape evolve.**
+---
+
+## Keep Debian and Proxmox Patched
+
+Stay up to date—for OS security and software bug fixes:
+
+```bash
+sudo apt update && sudo apt full-upgrade -y
+sudo apt autoremove -y
+```
+*Regularly check [Proxmox News](https://forum.proxmox.com/#news.8) for urgent security bulletins.*
+
+---
+
+## Create a Non-root Admin User
+
+Use a separate, non-root admin account for remote access/administration:
+
+```bash
+sudo adduser adminuser
+sudo usermod -aG sudo adminuser
+```
+> Replace `adminuser` with your username of choice.
+
+**Set up strong SSH keys (on your laptop):**
+```bash
+ssh-copy-id adminuser@your.server.ip
+```
+Or manually add your public key to `/home/adminuser/.ssh/authorized_keys`.
+
+> **Test login:**
+```bash
+ssh adminuser@your.server.ip
+```
+Before proceeding, **make sure key login for the new user works**!
+
+---
+
+## Harden SSH: Custom High Port, No Root Password Logins
+
+### Choose a Unique, High SSH Port
+
+- Pick an unused, random port between 49152–65535. Check open ports:
+```bash
+sudo ss -tuln
+```
+- Suppose you use **54321**.
+
+### Edit SSH Config
+
+`/etc/ssh/sshd_config`
+```
+Port 54321
+PermitRootLogin no
+PasswordAuthentication no
+AllowUsers adminuser
+MaxAuthTries 3
+LoginGraceTime 30
+```
+**Restart and TEST SSH:**
+```bash
+sudo systemctl reload ssh
+ssh -p 54321 adminuser@your.server.ip
+```
+*Do not lock yourself out!*
+
+---
+
+## Lock Down the UFW Firewall
+
+**Install UFW and set defaults:**
+```bash
+sudo apt install ufw -y
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+```
+
+**Allow only your new SSH port** (for initial remote admin):
+```bash
+sudo ufw allow 54321/tcp
+```
+You’ll further restrict this after VPN is set up.
+
+---
+
+## Enable Two-Factor Authentication (2FA) for Proxmox
+
+1. In **Proxmox web UI**:  
+   **Datacenter > Users > Select user > Set "2nd Factor" (TOTP).**
+2. Pair 2FA (Google Authenticator, Authy, etc.) with all admin accounts.
+
+---
+
+## WireGuard VPN — Only Admin Access via VPN
+
+### Install and Configure WireGuard
+
+**a) Install:**
+```bash
+sudo apt install wireguard -y
+```
+
+**b) Generate VPN server keys:**
+```bash
+umask 077
+wg genkey | tee server_private.key | wg pubkey > server_public.key
+```
+(*Repeat on each client to generate individual keys*)
+
+**c) Configure WireGuard server** (`/etc/wireguard/wg0.conf`):
+```ini
+[Interface]
+Address = 10.10.10.1/24
+ListenPort = 51820
+PrivateKey = (server_private.key contents)
+
+# Add a [Peer] section for each client:
+[Peer]
+PublicKey = (client_public_key)
+AllowedIPs = 10.10.10.2/32
+```
+**d) Enable IP Forwarding:**
+```bash
+echo "net.ipv4.ip_forward=1" | sudo tee -a /etc/sysctl.conf
+sudo sysctl -p
+```
+
+**e) Start and Enable WireGuard:**
+```bash
+sudo systemctl enable wg-quick@wg0
+sudo systemctl start wg-quick@wg0
+```
+
+**f) Client example config:**
+```ini
+[Interface]
+PrivateKey = (client_private)
+Address = 10.10.10.2/24
+
+[Peer]
+PublicKey = (server_public)
+Endpoint = your.server.ip:51820
+AllowedIPs = 10.10.10.1/32
+PersistentKeepalive = 25
+```
+
+---
+
+## Restrict Admin Interfaces to VPN Only with UFW
+
+**After VPN is fully connected and tested:**
+
+```bash
+sudo ufw allow 51820/udp                                  # Allow VPN
+sudo ufw allow from 10.10.10.0/24 to any port 8006        # Proxmox web GUI from VPN only
+sudo ufw allow from 10.10.10.0/24 to any port 54321       # SSH from VPN only
+sudo ufw deny 8006/tcp                                    # Block GUI from public
+sudo ufw deny 54321/tcp                                   # Block SSH from public
+sudo ufw enable
+sudo ufw status verbose
+```
+*Now, only the VPN subnet can access SSH and GUI. VPN is your admin "door."*
+
+---
+
+## Enable Proxmox Firewall Feature
+
+- In Proxmox web UI:
+  - **Datacenter → Firewall → Enable.**
+  - Enable on nodes and VMs as needed.
+  - Default: **DROP** all, and **explicitly ALLOW only from VPN subnet**.
+
+---
+
+## Monitor, Audit, Respond
+
+- Check system and Proxmox logs regularly:
+  ```bash
+  sudo journalctl -xe
+  sudo tail -f /var/log/auth.log
+  sudo tail -f /var/log/pveproxy/access.log
+  ```
+- Install **Fail2Ban** to block brute-force SSH attempts:
+  ```bash
+  sudo apt install fail2ban
+  ```
+- Periodically review user accounts, VPN keys, and firewall rules.
+
+---
+
+## Ongoing Security Checklist
+
+- [ ] Debian & Proxmox regularly patched
+- [ ] Non-root sudo admin with SSH key only
+- [ ] Random high, unused SSH port
+- [ ] SSH: root login denied, passwords off
+- [ ] UFW: VPN subnet is only way to reach Proxmox GUI/SSH
+- [ ] 2FA enforced for admin users
+- [ ] WireGuard VPN required for any admin access
+- [ ] Proxmox built-in firewall is enabled
+- [ ] Fail2Ban and system logging active
+
+---
+
+## How to Manage UFW Firewall Rules
+
+- **Check active rules:**
+    ```bash
+    sudo ufw status verbose
+    ```
+- **List rules, numbered (for easy removal):**
+    ```bash
+    sudo ufw status numbered
+    ```
+- **Remove by number:**
+    ```bash
+    sudo ufw delete <number>
+    ```
+- **Remove by rule:**
+    ```bash
+    sudo ufw delete allow 51820/udp
+    ```
+
+---
+
+## Quick Recap
+
+- All management traffic must traverse your VPN.
+- Nothing (SSH, GUI, etc.) is exposed to the public Internet.
+- Regularly log in to your VPN with WireGuard before accessing the web GUI or SSH.
+- Periodically review firewall rules, update your system, and check your audit logs.
+
+---
+
+## Further Resources
+
+- [Proxmox: Securing Proxmox VE](https://pve.proxmox.com/wiki/Securing_Proxmox_VE)
+- [WireGuard](https://www.wireguard.com/)
+
+---
