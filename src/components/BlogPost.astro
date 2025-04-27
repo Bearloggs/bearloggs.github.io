@@ -13,8 +13,8 @@ const { post } = Astro.props;
 const articleId = `post-${post.slug}`;
 
 // Format the date for structured data
-const formattedDate = post.data.pubDate.toISOString();
-const formattedUpdatedDate = post.data.updatedDate?.toISOString();
+const formattedDate = new Date(post.data.pubDate).toISOString();
+const formattedUpdatedDate = post.data.updatedDate ? new Date(post.data.updatedDate).toISOString() : undefined;
 ---
 
 <article 
