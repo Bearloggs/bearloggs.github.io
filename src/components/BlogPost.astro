@@ -1,6 +1,7 @@
 ---
 import { type CollectionEntry } from 'astro:content';
 import FormattedDate from './FormattedDate.astro';
+import Image from './Image.astro';
 
 interface Props {
   post: CollectionEntry<'blog'>;
@@ -28,11 +29,11 @@ const formattedUpdatedDate = post.data.updatedDate?.toISOString();
     aria-label={`Read more about ${post.data.title}`}
   >
     {post.data.heroImage && (
-      <img
+      <Image
         src={post.data.heroImage}
         alt={`Hero image for ${post.data.title}`}
         class="rounded-lg shadow-md mb-4 transition-transform group-hover:scale-[1.02] w-full h-48 object-cover"
-        loading="lazy"
+        priority={false}
         itemprop="image"
       />
     )}

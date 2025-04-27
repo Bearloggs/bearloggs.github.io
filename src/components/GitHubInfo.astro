@@ -1,4 +1,6 @@
 ---
+import Image from './Image.astro';
+
 // GitHub username to fetch data for
 const githubUsername = 'Bearloggs';
 
@@ -36,12 +38,13 @@ try {
       {userData && (
         <div class="flex flex-col md:flex-row gap-6 mb-8">
           <div class="flex-shrink-0">
-            <img 
+            <Image 
               src={userData.avatar_url} 
               alt={`${userData.name || githubUsername}'s GitHub avatar`}
               class="w-32 h-32 rounded-full"
-              width="128"
-              height="128"
+              width={128}
+              height={128}
+              priority={true}
             />
           </div>
           <div class="flex-grow">

@@ -36,7 +36,12 @@ export default defineConfig({
         }]
       ]
     }),
-    sitemap(),
+    sitemap({
+      changefreq: 'daily',
+      priority: 0.8,
+      lastmod: new Date(),
+      customPages: ['https://www.hacknwatch.com/blog/'],
+    }),
     tailwind()
   ]
 });

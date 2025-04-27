@@ -33,11 +33,23 @@ const ogImage = new URL(image, Astro.site);
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     
+    <!-- Preload Critical Assets -->
+    <link rel="preload" href="/favicon-32x32.png" as="image" type="image/png" />
+    <link rel="preload" href="/favicon-16x16.png" as="image" type="image/png" />
+    <link rel="preload" href="/site.webmanifest" as="manifest" />
+    
     <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content="#3B82F6" />
+    
+    <!-- Image Optimization -->
+    <meta name="image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:alt" content={title} />
     
     <meta name="generator" content={Astro.generator} />
 
@@ -66,6 +78,19 @@ const ogImage = new URL(image, Astro.site);
     <meta property="og:image" content={ogImage} />
     <meta property="og:site_name" content="HacknWatch" />
     <meta property="og:locale" content="en_US" />
+
+    <!-- Article-specific Meta Tags -->
+    {article && publishDate && (
+      <>
+        <meta property="article:published_time" content={publishDate} />
+        <meta property="article:modified_time" content={publishDate} />
+        <meta property="article:author" content={author} />
+        <meta property="article:section" content="Cybersecurity" />
+        {keywords.split(',').map(tag => (
+          <meta property="article:tag" content={tag.trim()} />
+        ))}
+      </>
+    )}
 
     <ViewTransitions />
     
