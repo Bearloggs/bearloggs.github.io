@@ -13,8 +13,10 @@ const { post } = Astro.props;
 const articleId = `post-${post.slug}`;
 
 // Format the date for structured data
-const formattedDate = new Date(post.data.pubDate).toISOString();
-const formattedUpdatedDate = post.data.updatedDate ? new Date(post.data.updatedDate).toISOString() : undefined;
+const pubDate = typeof post.data.pubDate === 'string' ? new Date(post.data.pubDate) : post.data.pubDate;
+const formattedDate = pubDate.toISOString();
+const updatedDate = post.data.updatedDate ? (typeof post.data.updatedDate === 'string' ? new Date(post.data.updatedDate) : post.data.updatedDate) : undefined;
+const formattedUpdatedDate = updatedDate?.toISOString();
 ---
 
 <article 
@@ -47,12 +49,12 @@ const formattedUpdatedDate = post.data.updatedDate ? new Date(post.data.updatedD
       class="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-2"
       itemprop="datePublished"
     >
-      <time datetime={formattedDate}>
+      <time datetime={post.data.pubDate}>
         <FormattedDate date={post.data.pubDate} />
       </time>
       {post.data.updatedDate && (
         <time 
-          datetime={formattedUpdatedDate}
+          datetime={post.data.updatedDate}
           itemprop="dateModified"
         >
           (Updated: <FormattedDate date={post.data.updatedDate} />)
@@ -80,7 +82,7 @@ const formattedUpdatedDate = post.data.updatedDate ? new Date(post.data.updatedD
   </a>
 </article>
 
-<script define:vars={{ articleId, post }}>
+<script define:vars={{ articleId, post, formattedDate, formattedUpdatedDate }}>
   // Add structured data for better SEO
   const structuredData = {
     "@context": "https://schema.org",
@@ -88,8 +90,8 @@ const formattedUpdatedDate = post.data.updatedDate ? new Date(post.data.updatedD
     "headline": post.data.title,
     "description": post.data.description,
     "image": post.data.heroImage,
-    "datePublished": post.data.pubDate.toISOString(),
-    "dateModified": post.data.updatedDate?.toISOString() || post.data.pubDate.toISOString(),
+    "datePublished": formattedDate,
+    "dateModified": formattedUpdatedDate || formattedDate,
     "author": {
       "@type": "Person",
       "name": "Bearloggs"
