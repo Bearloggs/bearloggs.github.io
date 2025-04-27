@@ -8,7 +8,10 @@ const posts = (await getCollection('blog', ({ data }) => {
 })).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 ---
 
-<Layout title="Blog" description="Read my latest blog posts about technology, development, and more.">
+<Layout 
+  title="Latest Cybersecurity & Tech Blog Posts | In-Depth Articles & Tutorials"
+  description="Explore our latest blog posts about Cybersecurity, DevSecOps, MLOps, and technical topics. Discover in-depth articles, tutorials, and best practices."
+>
   <h1 class="text-4xl font-bold mb-8">Blog Posts</h1>
   <div class="grid gap-8">
     {posts.map((post) => <BlogPost post={post} />)}

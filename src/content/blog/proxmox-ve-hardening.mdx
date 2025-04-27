@@ -1,6 +1,6 @@
 ---
 title: 'Proxmox VE Hardening Guide'
-description: 'Secure your Proxmox VE for Internet exposure using both OS- and application-level defenses: a random high-numbered SSH port, strict UFW firewalling, WireGuard VPN, and only VPN-based access for admin and SSH.'
+description: 'Secure your Proxmox VE server with VPN-only admin access, custom SSH port, and strict firewall rules. A practical guide to hardening your virtualization platform.'
 pubDate: 2025-04-21
 tags: ['proxmox', 'hardening', 'linux', 'devsecops']
 ---
@@ -27,7 +27,6 @@ Stay up to date—for OS security and software bug fixes:
 sudo apt update && sudo apt full-upgrade -y
 sudo apt autoremove -y
 ```
-*Regularly check [Proxmox News](https://forum.proxmox.com/#news.8) for urgent security bulletins.*
 
 ---
 

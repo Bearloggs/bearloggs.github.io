@@ -24,8 +24,8 @@ const { posts } = Astro.props;
 ---
 
 <Layout 
-  title={`Posts tagged with #${tag}`}
-  description={`All blog posts tagged with #${tag}`}
+  title={`${tag.charAt(0).toUpperCase() + tag.slice(1)} Articles & Tutorials | Cybersecurity & Tech Blog`}
+  description={`Explore in-depth articles and tutorials about ${tag}. Discover the latest insights, best practices, and technical guides in our comprehensive blog posts.`}
 >
   <div class="mb-8">
     <a 

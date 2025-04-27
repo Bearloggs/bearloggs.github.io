@@ -16,6 +16,7 @@ const posts = (await getCollection('blog', ({ data }) => {
   title="HacknWatch"
   description="A personal blog about technology, development, and best practices"
 >
+  <h1 class="sr-only">HacknWatch - Cybersecurity, DevSecOps, and MLOps Blog</h1>
   <Hero />
   <div class="max-w-4xl mx-auto px-4">
     <FeaturedPosts posts={posts} />
