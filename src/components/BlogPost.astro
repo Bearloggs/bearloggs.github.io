@@ -11,7 +11,7 @@ const { post } = Astro.props;
 const { title, description, pubDate, updatedDate, heroImage, tags = [], author = "Bearloggs" } = post.data;
 
 // Generate a unique ID for the article
-const articleId = `post-${post.slug}`;
+const articleId = `post-${post.id}`;
 
 const formattedDate = new Date(pubDate).toLocaleDateString('en-US', {
   year: 'numeric',
@@ -33,7 +33,7 @@ const formattedUpdatedDate = updatedDate ? new Date(updatedDate).toLocaleDateStr
   itemtype="https://schema.org/BlogPosting"
 >
   <a 
-    href={`/posts/${post.slug}/`} 
+    href={`/posts/${post.id}/`} 
     class="block no-underline"
     aria-label={`Read more about ${title}`}
   >
@@ -76,7 +76,7 @@ const formattedUpdatedDate = updatedDate ? new Date(updatedDate).toLocaleDateStr
     </p>
     {tags.length > 0 && (
       <div class="flex flex-wrap gap-2 mt-4">
-        {tags.map((tag) => (
+        {tags.map((tag: string) => (
           <a
             href={`/tags/${tag}/`}
             class="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"

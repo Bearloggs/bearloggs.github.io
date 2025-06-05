@@ -18,7 +18,6 @@ const blogCollection = defineCollection({
       })
       .optional(),
   }),
-  extensions: ['.mdx'],
 });
 
 export const collections = {
