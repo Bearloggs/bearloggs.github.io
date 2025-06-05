@@ -4,6 +4,8 @@ import sitemap from "@astrojs/sitemap";
 import tailwind from "@astrojs/tailwind";
 import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
+import remarkGfm from "remark-gfm";
+import remarkSmartypants from "remark-smartypants";
 
 export default defineConfig({
   site: "https://www.hacknwatch.com",
@@ -14,6 +16,10 @@ export default defineConfig({
         theme: "github-dark",
         wrap: true,
       },
+      remarkPlugins: [
+        remarkGfm,
+        remarkSmartypants,
+      ],
       rehypePlugins: [
         rehypeSlug,
         [
@@ -40,6 +46,9 @@ export default defineConfig({
           },
         ],
       ],
+      extendMarkdownConfig: true,
+      smartypants: true,
+      gfm: true,
     }),
     sitemap({
       changefreq: "daily",

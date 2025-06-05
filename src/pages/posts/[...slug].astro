@@ -14,9 +14,20 @@ export async function getStaticPaths() {
 
 type Props = CollectionEntry<'posts'>;
 const post = Astro.props;
+
+// Extract headings from the MDX content
+const headings = post.body.match(/^#{1,6}\s.+$/gm)?.map(heading => {
+  const depth = heading.match(/^#+/)?.[0].length || 1;
+  const text = heading.replace(/^#+\s+/, '');
+  const slug = text.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  return { depth, slug, text };
+}) || [];
+
+// Render the MDX content
+const { Content } = await post.render();
 ---
 
-<BlogPost {...post.data} headings={[]}>
-  {post.body}
+<BlogPost {...post.data} headings={headings}>
+  <Content />
 </BlogPost>
 ---
