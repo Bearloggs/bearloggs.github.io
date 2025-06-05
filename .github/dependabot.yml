@@ -23,9 +23,6 @@ updates:
     open-pull-requests-limit: 10
     # Specify the target branch for pull requests
     target-branch: "main"
-    # Set reviewers for the pull requests
-    reviewers:
-      - "Bearloggs"
     # Automatically merge minor and patch updates
     commit-message:
       prefix: "npm"
