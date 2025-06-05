@@ -10,14 +10,14 @@ interface FeaturedTag {
 }
 
 const navItems: NavItem[] = [
-  { href: '/blog', text: 'Posts' },
+  { href: '/posts', text: 'Posts' },
   { href: '/about', text: 'About' },
 ];
 
 const featuredTags: FeaturedTag[] = [
   { tag: 'devsecops', label: 'DevSecOps' },
-  { tag: 'dfir', label: 'DFIR' },
-  { tag: 'mlops', label: 'MLOps' },
+  { tag: 'forensics', label: 'Forensics' },
+  { tag: 'machine-learning', label: 'Machine Learning' },
 ];
 ---
 
@@ -53,19 +53,6 @@ const featuredTags: FeaturedTag[] = [
       </div>
       
       <div class="flex items-center space-x-4">
-        <a
-          href="/rss.xml"
-          class="hidden md:inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-          title="RSS Feed"
-          aria-label="RSS Feed"
-        >
-          <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-            <path d="M5 3a1 1 0 000 2c5.523 0 10 4.477 10 10a1 1 0 102 0C17 8.373 11.627 3 5 3z" />
-            <path d="M4 9a1 1 0 011-1 7 7 0 017 7 1 1 0 11-2 0 5 5 0 00-5-5 1 1 0 01-1-1zM3 15a2 2 0 114 0 2 2 0 01-4 0z" />
-          </svg>
-          <span class="ml-1">RSS</span>
-        </a>
-
         <button
           id="theme-toggle"
           class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -170,13 +157,6 @@ const featuredTags: FeaturedTag[] = [
           #{label}
         </a>
       ))}
-      <a
-        href="/rss.xml"
-        class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
-        role="menuitem"
-      >
-        RSS Feed
-      </a>
     </div>
   </div>
 </nav>
@@ -274,11 +254,8 @@ const featuredTags: FeaturedTag[] = [
 
     private initialize(): void {
       if (!this.elements.toggle) return;
-      
       this.updateTheme();
       this.elements.toggle.addEventListener('click', () => this.toggleTheme());
-      
-      // Listen for system theme changes
       this.mediaQuery.addEventListener('change', (e) => {
         this.prefersDark = e.matches;
         this.updateTheme();
@@ -288,7 +265,6 @@ const featuredTags: FeaturedTag[] = [
     private updateTheme(): void {
       const isDark = localStorage.getItem('theme') === 'dark' || 
         (!localStorage.getItem('theme') && this.prefersDark);
-      
       document.documentElement.classList.toggle('dark', isDark);
       this.updateIcons(isDark);
       this.elements.toggle?.setAttribute('aria-expanded', isDark.toString());
@@ -307,26 +283,17 @@ const featuredTags: FeaturedTag[] = [
     }
   }
 
-  // Function to initialize all components
   function initializeComponents() {
-    // Clean up existing instances
     if (mobileMenuInstance) {
       mobileMenuInstance.cleanup();
       mobileMenuInstance = null;
     }
-    
-    // Create new instances
     mobileMenuInstance = new MobileMenu();
     themeToggleInstance = new ThemeToggle();
   }
 
-  // Initialize on page load
   initializeComponents();
-
-  // Re-initialize after view transitions
   document.addEventListener('astro:after-swap', initializeComponents);
-  
-  // Cleanup on page unload
   window.addEventListener('unload', () => {
     if (mobileMenuInstance) {
       mobileMenuInstance.cleanup();

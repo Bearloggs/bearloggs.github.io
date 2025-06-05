@@ -1,0 +1,24 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import BlogPost from '../../components/BlogPost.astro';
+
+const posts = (await getCollection('posts', ({ data }) => {
+  return import.meta.env.PROD ? !data.draft : true;
+})).sort((a, b) => {
+  const dateA = a.data.pubDate instanceof Date ? a.data.pubDate : new Date(a.data.pubDate);
+  const dateB = b.data.pubDate instanceof Date ? b.data.pubDate : new Date(b.data.pubDate);
+  return dateB.getTime() - dateA.getTime();
+});
+---
+
+<Layout
+  title="Latest Cybersecurity & Tech Posts | In-Depth Articles & Tutorials"
+  description="Explore our latest posts about Cybersecurity. Discover in-depth articles, tutorials, and best practices."
+>
+  <h1 class="text-4xl font-bold mb-8">Posts</h1>
+
+  <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    {posts.map((post) => <BlogPost post={post} />)}
+  </div>
+</Layout>

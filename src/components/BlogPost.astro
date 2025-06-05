@@ -1,22 +1,29 @@
 ---
-import { type CollectionEntry } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
 import FormattedDate from './FormattedDate.astro';
 import Image from './Image.astro';
 
 interface Props {
-  post: CollectionEntry<'blog'>;
+  post: CollectionEntry<'posts'>;
 }
 
 const { post } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, tags = [], author = "Bearloggs" } = post.data;
 
 // Generate a unique ID for the article
 const articleId = `post-${post.slug}`;
 
-// Format the date for structured data
-const pubDate = typeof post.data.pubDate === 'string' ? new Date(post.data.pubDate) : post.data.pubDate;
-const formattedDate = pubDate.toISOString();
-const updatedDate = post.data.updatedDate ? (typeof post.data.updatedDate === 'string' ? new Date(post.data.updatedDate) : post.data.updatedDate) : undefined;
-const formattedUpdatedDate = updatedDate?.toISOString();
+const formattedDate = new Date(pubDate).toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric'
+});
+
+const formattedUpdatedDate = updatedDate ? new Date(updatedDate).toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric'
+}) : null;
 ---
 
 <article 
@@ -26,75 +33,77 @@ const formattedUpdatedDate = updatedDate?.toISOString();
   itemtype="https://schema.org/BlogPosting"
 >
   <a 
-    href={`/blog/${post.slug}/`} 
+    href={`/posts/${post.slug}/`} 
     class="block no-underline"
-    aria-label={`Read more about ${post.data.title}`}
+    aria-label={`Read more about ${title}`}
   >
-    {post.data.heroImage && (
+    {heroImage && (
       <Image
-        src={post.data.heroImage}
-        alt={`Hero image for ${post.data.title}`}
-        class="rounded-lg shadow-md mb-4 transition-transform group-hover:scale-[1.02] w-full h-48 object-cover"
+        src={heroImage}
+        alt={title}
+        className="rounded-lg shadow-md mb-4 transition-transform group-hover:scale-[1.02] w-full h-48 object-cover"
         priority={false}
-        itemprop="image"
       />
     )}
     <h2 
       class="text-xl md:text-2xl font-bold mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 line-clamp-2"
       itemprop="headline"
     >
-      {post.data.title}
+      {title}
     </h2>
     <div 
       class="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-2"
       itemprop="datePublished"
     >
-      <time datetime={post.data.pubDate}>
-        <FormattedDate date={post.data.pubDate} />
+      <time datetime={pubDate.toISOString()}>
+        Published: <FormattedDate date={pubDate} />
       </time>
-      {post.data.updatedDate && (
+      {updatedDate && (
         <time 
-          datetime={post.data.updatedDate}
+          datetime={updatedDate.toISOString()}
           itemprop="dateModified"
         >
-          (Updated: <FormattedDate date={post.data.updatedDate} />)
+          (Updated: <FormattedDate date={updatedDate} />)
         </time>
       )}
+      <span>By {author}</span>
     </div>
     <p 
       class="text-gray-700 dark:text-gray-300 line-clamp-3"
       itemprop="description"
     >
-      {post.data.description}
+      {description}
     </p>
-    <div class="flex flex-wrap gap-2 mt-4">
-      {post.data.tags.map((tag) => (
-        <a
-          href={`/tags/${tag}/`}
-          class="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-          rel="tag"
-          aria-label={`View all posts tagged with ${tag}`}
-        >
-          #{tag}
-        </a>
-      ))}
-    </div>
+    {tags.length > 0 && (
+      <div class="flex flex-wrap gap-2 mt-4">
+        {tags.map((tag) => (
+          <a
+            href={`/tags/${tag}/`}
+            class="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+            rel="tag"
+            aria-label={`View all posts tagged with ${tag}`}
+          >
+            #{tag}
+          </a>
+        ))}
+      </div>
+    )}
   </a>
 </article>
 
-<script define:vars={{ articleId, post, formattedDate, formattedUpdatedDate }}>
+<script is:inline define:vars={{ articleId, post, formattedDate, formattedUpdatedDate }}>
   // Add structured data for better SEO
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
-    "headline": post.data.title,
-    "description": post.data.description,
-    "image": post.data.heroImage,
+    "headline": title,
+    "description": description,
+    "image": heroImage,
     "datePublished": formattedDate,
     "dateModified": formattedUpdatedDate || formattedDate,
     "author": {
       "@type": "Person",
-      "name": "Bearloggs"
+      "name": author
     },
     "publisher": {
       "@type": "Organization",

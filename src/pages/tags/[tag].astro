@@ -1,43 +1,33 @@
 ---
 import { getCollection } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import BlogPost from '../../components/BlogPost.astro';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('blog', ({ data }) => {
-    return import.meta.env.PROD ? !data.draft : true;
-  });
-  
-  const tags = [...new Set(posts.flatMap(post => post.data.tags))];
-  
+  const posts = await getCollection('posts');
+  const tags = [...new Set(posts.flatMap(post => post.data.tags || []))];
   return tags.map(tag => ({
     params: { tag },
-    props: {
-      posts: posts.filter(post => post.data.tags.includes(tag))
-        .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
-    }
+    props: { posts: posts.filter(post => post.data.tags?.includes(tag)) },
   }));
 }
 
-const { tag } = Astro.params;
+type Props = {
+  posts: CollectionEntry<'posts'>[];
+};
+
 const { posts } = Astro.props;
+const tag = Astro.params.tag;
 ---
 
-<Layout 
-  title={`${tag.charAt(0).toUpperCase() + tag.slice(1)} Articles & Tutorials | Cybersecurity & Tech Blog`}
-  description={`Explore in-depth articles and tutorials about ${tag}. Discover the latest insights, best practices, and technical guides in our comprehensive blog posts.`}
+<Layout
+  title={`${tag.charAt(0).toUpperCase() + tag.slice(1)} Articles & Tutorials | Cybersecurity & Tech`}
+  description={`Explore our collection of ${tag} articles and tutorials. Find in-depth technical guides in our comprehensive posts.`}
 >
-  <div class="mb-8">
-    <a 
-      href="/tags"
-      class="text-blue-600 dark:text-blue-400 hover:underline mb-4 inline-block"
-    >
-      ← All Tags
-    </a>
-    <h1 class="text-4xl font-bold">Posts tagged with #{tag}</h1>
-  </div>
+  <h1 class="text-4xl font-bold mb-8">Posts tagged with "{tag}"</h1>
 
-  <div class="grid gap-8">
+  <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
     {posts.map(post => <BlogPost post={post} />)}
   </div>
 

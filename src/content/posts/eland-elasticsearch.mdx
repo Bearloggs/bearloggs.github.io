@@ -1,8 +1,8 @@
 ---
-title: 'Machine Learning with Elasticsearch using Eland'
-description: 'A comprehensive guide to using Eland, the Python package for Elasticsearch data analysis'
+title: "Machine Learning with Elasticsearch using Eland"
+description: "A comprehensive guide to using Eland, the Python package for Elasticsearch data analysis"
 pubDate: 2025-04-15
-tags: ['mlops', 'python', 'elasticsearch']
+tags: ["machine-learning", "python", "elasticsearch"]
 ---
 
 # Machine Learning with Elasticsearch using Eland
@@ -66,12 +66,12 @@ response = s.execute()
 
 ### Why Eland?
 
-* Seamless integration with pandas
-* Efficient handling of large datasets
-* Native support for Elasticsearch data types
-* Ability to perform complex aggregations
-* Memory-efficient operations
-* Machine learning model deployment capabilities
+- Seamless integration with pandas
+- Efficient handling of large datasets
+- Native support for Elasticsearch data types
+- Ability to perform complex aggregations
+- Memory-efficient operations
+- Machine learning model deployment capabilities
 
 ## Getting Started
 
@@ -134,18 +134,18 @@ sorted_df = df.sort_values('timestamp', ascending=False)
 def analyze_data():
     # Connect to Elasticsearch
     es = ed.Elasticsearch("http://localhost:9200")
-    
+
     # Load data
     df = ed.DataFrame("my_index", es_client=es)
-    
+
     # Preprocess data
     df_clean = df[df['value'].notna()]
-    
+
     # Perform analysis
     results = df_clean.groupby('category').agg({
         'value': ['mean', 'std', 'count']
     })
-    
+
     return results
 ```
 
@@ -155,13 +155,13 @@ def analyze_data():
 # Time series analysis example
 def time_series_analysis():
     df = ed.DataFrame("time_series_index", es_client=es)
-    
+
     # Resample by time period
     daily_stats = df.resample('D')['value'].agg(['mean', 'sum'])
-    
+
     # Calculate rolling statistics
     rolling_mean = df['value'].rolling(window=7).mean()
-    
+
     return daily_stats, rolling_mean
 ```
 
@@ -179,25 +179,25 @@ from sklearn.preprocessing import StandardScaler
 def prepare_ml_data():
     # Load data from Elasticsearch
     df = ed.DataFrame("ml_dataset", es_client=es)
-    
+
     # Select features and target
     X = df[['feature1', 'feature2', 'feature3']]
     y = df['target']
-    
+
     # Convert to pandas for sklearn compatibility
     X_pd = X.to_pandas()
     y_pd = y.to_pandas()
-    
+
     # Split the data
     X_train, X_test, y_train, y_test = train_test_split(
         X_pd, y_pd, test_size=0.2, random_state=42
     )
-    
+
     # Scale the features
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
-    
+
     return X_train_scaled, X_test_scaled, y_train, y_test
 ```
 
@@ -206,18 +206,18 @@ def prepare_ml_data():
 ```python
 def engineer_features():
     df = ed.DataFrame("ml_dataset", es_client=es)
-    
+
     # Create new features
     df['feature_ratio'] = df['feature1'] / df['feature2']
     df['feature_interaction'] = df['feature1'] * df['feature2']
-    
+
     # Time-based features
     df['hour'] = df['timestamp'].dt.hour
     df['day_of_week'] = df['timestamp'].dt.dayofweek
-    
+
     # Categorical encoding
     df['category_encoded'] = df['category'].factorize()[0]
-    
+
     return df
 ```
 
@@ -230,15 +230,15 @@ from sklearn.metrics import classification_report
 def train_and_evaluate():
     # Prepare data
     X_train, X_test, y_train, y_test = prepare_ml_data()
-    
+
     # Train model
     model = RandomForestClassifier(n_estimators=100, random_state=42)
     model.fit(X_train, y_train)
-    
+
     # Evaluate
     y_pred = model.predict(X_test)
     print(classification_report(y_test, y_pred))
-    
+
     return model
 ```
 
@@ -274,35 +274,35 @@ def anomaly_detection_example():
     # Generate sample data
     sample_size = 10000
     outlier_fraction = 0.01
-    
+
     # Create a dataset with anomalies
     X = np.random.randn(sample_size, 2)
     outliers = np.random.uniform(low=-4, high=4, size=(int(sample_size * outlier_fraction), 2))
     X = np.vstack([X, outliers])
-    
+
     # Convert to DataFrame
     df = pd.DataFrame(X, columns=['feature_1', 'feature_2'])
-    
+
     # Train Isolation Forest
     iso_forest = IsolationForest(contamination=outlier_fraction, random_state=42)
     iso_forest.fit(df)
-    
+
     # Predict anomalies
     predictions = iso_forest.predict(df)
-    
+
     # Convert to binary labels (1 for normal, 0 for anomaly)
     labels = np.where(predictions == 1, 1, 0)
-    
+
     # Add labels to DataFrame
     df['is_anomaly'] = labels
-    
+
     # Visualize results
     plt.figure(figsize=(10, 6))
     plt.scatter(df['feature_1'], df['feature_2'], c=df['is_anomaly'], cmap='viridis')
     plt.title('Anomaly Detection Results')
     plt.colorbar(label='Is Anomaly')
     plt.show()
-    
+
     return df, iso_forest
 ```
 
@@ -311,28 +311,31 @@ def anomaly_detection_example():
 While Eland provides powerful capabilities for machine learning with Elasticsearch, there are some important limitations to be aware of:
 
 1. **Supported Model Types**
-   * Only tree-based models are currently supported for deployment to Elasticsearch:
-     * DecisionTreeClassifier
-     * DecisionTreeRegressor
-     * RandomForestRegressor
-     * RandomForestClassifier
-     * XGBClassifier
-     * XGBRegressor
-     * LGBMRegressor
-     * LGBMClassifier
-   * Unsupervised learning models (like IsolationForest) are not supported
+
+   - Only tree-based models are currently supported for deployment to Elasticsearch:
+     - DecisionTreeClassifier
+     - DecisionTreeRegressor
+     - RandomForestRegressor
+     - RandomForestClassifier
+     - XGBClassifier
+     - XGBRegressor
+     - LGBMRegressor
+     - LGBMClassifier
+   - Unsupervised learning models (like IsolationForest) are not supported
 
 2. **Data Processing Limitations**
-   * While you can convert pandas DataFrames to Eland DataFrames using `ed.pandas_to_eland()`, Eland DataFrames can only be used for data processing
-   * You cannot train models directly on Eland DataFrames - you need to convert back to pandas using `to_pandas()`
-   * You cannot perform inference directly on data stored in Elasticsearch
+
+   - While you can convert pandas DataFrames to Eland DataFrames using `ed.pandas_to_eland()`, Eland DataFrames can only be used for data processing
+   - You cannot train models directly on Eland DataFrames - you need to convert back to pandas using `to_pandas()`
+   - You cannot perform inference directly on data stored in Elasticsearch
 
 3. **Performance Constraints**
-   * There are limits to how much data you can use for inference at once - large batches may result in timeouts
-   * Model deployment requires appropriate Elasticsearch license (X-Pack or Elastic Cloud)
+
+   - There are limits to how much data you can use for inference at once - large batches may result in timeouts
+   - Model deployment requires appropriate Elasticsearch license (X-Pack or Elastic Cloud)
 
 4. **Workflow Considerations**
-   * For a complete ML pipeline, you'll need to:
+   - For a complete ML pipeline, you'll need to:
      1. Use Eland for data loading and preprocessing
      2. Convert to pandas for model training
      3. Deploy the trained model back to Elasticsearch for inference
@@ -344,5 +347,5 @@ Eland provides a powerful bridge between Elasticsearch and Python's data analysi
 
 ## Resources
 
-* [Eland Documentation](https://eland.readthedocs.io/)
-* [Pandas Documentation](https://pandas.pydata.org/docs/)
+- [Eland Documentation](https://eland.readthedocs.io/)
+- [Pandas Documentation](https://pandas.pydata.org/docs/)

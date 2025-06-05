@@ -6,6 +6,7 @@ interface Props {
   height?: number;
   className?: string;
   priority?: boolean;
+  itemprop?: string;
 }
 
 const {
@@ -14,7 +15,8 @@ const {
   width,
   height,
   className = "",
-  priority = false
+  priority = false,
+  itemprop
 } = Astro.props;
 
 const imageUrl = new URL(src, Astro.site);
@@ -33,5 +35,6 @@ const imageUrl = new URL(src, Astro.site);
     class={className}
     loading={priority ? "eager" : "lazy"}
     decoding="async"
+    {...(itemprop ? { itemprop } : {})}
   />
 </picture> 

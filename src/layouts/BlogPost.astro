@@ -5,11 +5,11 @@ import FormattedDate from '../components/FormattedDate.astro';
 import TableOfContents from '../components/TableOfContents.astro';
 import Image from '../components/Image.astro';
 
-type Props = CollectionEntry<'blog'>['data'] & {
+type Props = CollectionEntry<'posts'>['data'] & {
   headings: Array<{ depth: number; slug: string; text: string }>;
 };
 
-const { title, description, pubDate, updatedDate, heroImage, tags, headings, author = "Bearloggs" } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, tags, headings = [], author = "Bearloggs" } = Astro.props;
 ---
 
 <Layout 
@@ -26,9 +26,8 @@ const { title, description, pubDate, updatedDate, heroImage, tags, headings, aut
         <Image 
           src={heroImage} 
           alt={`Hero image for ${title}`} 
-          class="w-full rounded-lg shadow-lg mb-6"
+          className="w-full rounded-lg shadow-lg mb-6"
           priority={true}
-          itemprop="image"
         />
       )}
       <h1 class="mb-2" itemprop="headline">{title}</h1>
@@ -42,17 +41,15 @@ const { title, description, pubDate, updatedDate, heroImage, tags, headings, aut
           </time>
         )}
       </div>
-      <div class="flex gap-2 mb-8">
-        {tags.map((tag) => (
-          <a
-            href={`/tags/${tag}/`}
-            class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors no-underline"
-            rel="tag"
-          >
-            #{tag}
-          </a>
-        ))}
-      </div>
+      {tags && tags.length > 0 && (
+        <div class="flex gap-2 mb-8">
+          {tags.map((tag) => (
+            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors no-underline">
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
       <div itemprop="articleBody">
         <slot />
       </div>

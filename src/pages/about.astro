@@ -1,6 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import GitHubInfo from '../components/GitHubInfo.astro';
+import RootMeInfo from '../components/RootMeInfo.astro';
+import GitHubProjects from '../components/GitHubProjects.astro';
 ---
 
 <Layout title="About Me | Bearloggs" description="Learn more about Bearloggs - A passionate cybersecurity enthusiast and expert in various fields.">
@@ -22,7 +24,16 @@ import GitHubInfo from '../components/GitHubInfo.astro';
         </p>
       </div>
 
-      <GitHubInfo />
+      <div class="flex flex-col md:flex-row gap-8 items-stretch mb-12">
+        <div class="flex-1 flex">
+          <GitHubInfo />
+        </div>
+        <div class="flex-1 flex">
+          <RootMeInfo />
+        </div>
+      </div>
+
+      <GitHubProjects />
     </section>
   </main>
 </Layout>

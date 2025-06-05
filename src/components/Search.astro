@@ -1,83 +1,94 @@
 ---
-import { type CollectionEntry } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
 
 interface Props {
-  posts: CollectionEntry<'blog'>[];
-  allTags: string[];
+  posts: CollectionEntry<'posts'>[];
 }
 
-const { posts, allTags } = Astro.props;
+const { posts } = Astro.props;
+const uniqueTags = [...new Set(posts.flatMap(post => post.data.tags || []))];
 ---
 
 <div class="search-container mb-8">
-  <div class="flex flex-col md:flex-row gap-4 mb-4">
+  <div class="flex flex-col md:flex-row gap-4">
     <input
-      type="search"
+      type="text"
       id="search-input"
-      placeholder="Search articles..."
-      class="flex-grow px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      placeholder="Search posts..."
+      class="flex-1 p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-700"
     />
     <select
       id="tag-filter"
-      class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      class="p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-700"
     >
       <option value="">All Tags</option>
-      {allTags.map(tag => (
+      {uniqueTags.map(tag => (
         <option value={tag}>{tag}</option>
       ))}
     </select>
   </div>
-  
-  <div id="search-results" class="space-y-4">
+
+  <div id="search-results" class="mt-4">
     {posts.map(post => (
-      <article 
-        class="search-item bg-white dark:bg-gray-800 rounded-lg shadow-md p-4"
-        data-tags={post.data.tags.join(' ')}
+      <div
+        class="search-item mb-4 p-4 border rounded-lg dark:border-gray-700"
         data-title={post.data.title.toLowerCase()}
         data-description={post.data.description.toLowerCase()}
+        data-tags={(post.data.tags || []).join(' ').toLowerCase()}
       >
-        <a href={`/blog/${post.slug}/`} class="block no-underline">
-          <h3 class="text-xl font-bold mb-2 text-blue-600 dark:text-blue-400">
+        <h3 class="text-xl font-bold mb-2">
+          <a href={`/posts/${post.slug}/`} class="hover:underline">
             {post.data.title}
-          </h3>
-          <p class="text-gray-600 dark:text-gray-400 mb-2">
-            {post.data.description}
-          </p>
+          </a>
+        </h3>
+        <p class="text-gray-600 dark:text-gray-400 mb-2">
+          {post.data.description}
+        </p>
+        {post.data.tags && post.data.tags.length > 0 && (
           <div class="flex flex-wrap gap-2">
             {post.data.tags.map(tag => (
-              <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm">
-                #{tag}
+              <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-sm">
+                {tag}
               </span>
             ))}
           </div>
-        </a>
-      </article>
+        )}
+      </div>
     ))}
   </div>
 </div>
 
 <script>
-  const searchInput = document.getElementById('search-input');
-  const tagFilter = document.getElementById('tag-filter');
-  const searchResults = document.getElementById('search-results');
+  const searchInput = document.getElementById('search-input') as HTMLInputElement;
+  const tagFilter = document.getElementById('tag-filter') as HTMLSelectElement;
   const searchItems = document.querySelectorAll('.search-item');
 
   function performSearch() {
+    if (!searchInput || !tagFilter) return;
+
     const searchTerm = searchInput.value.toLowerCase();
     const selectedTag = tagFilter.value.toLowerCase();
 
     searchItems.forEach(item => {
-      const title = item.dataset.title;
-      const description = item.dataset.description;
-      const tags = item.dataset.tags.toLowerCase();
-      
-      const matchesSearch = title.includes(searchTerm) || description.includes(searchTerm);
+      if (!(item instanceof HTMLElement)) return;
+
+      const title = item.dataset.title?.toLowerCase() || '';
+      const description = item.dataset.description?.toLowerCase() || '';
+      const tags = item.dataset.tags?.toLowerCase() || '';
+
+      const matchesSearch = title.includes(searchTerm) || 
+                          description.includes(searchTerm);
       const matchesTag = !selectedTag || tags.includes(selectedTag);
-      
+
       item.style.display = matchesSearch && matchesTag ? 'block' : 'none';
     });
   }
 
-  searchInput.addEventListener('input', performSearch);
-  tagFilter.addEventListener('change', performSearch);
+  if (searchInput) {
+    searchInput.addEventListener('input', performSearch);
+  }
+
+  if (tagFilter) {
+    tagFilter.addEventListener('change', performSearch);
+  }
 </script> 

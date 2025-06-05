@@ -1,0 +1,70 @@
+version: 2
+updates:
+  # Enable version updates for npm
+  - package-ecosystem: "npm"
+    # Look for `package.json` and `lock` files in the `root` directory
+    directory: "/"
+    # Check for updates once a day
+    schedule:
+      interval: "daily"
+    # Specify labels for pull requests
+    labels:
+      - "dependencies"
+      - "npm"
+      - "security"
+    # Group all updates together
+    groups:
+      dependencies:
+        patterns:
+          - "*"
+    # Set the version update strategy
+    versioning-strategy: auto
+    # Allow up to 10 open pull requests for dependencies
+    open-pull-requests-limit: 10
+    # Specify the target branch for pull requests
+    target-branch: "main"
+    # Set reviewers for the pull requests
+    reviewers:
+      - "Bearloggs"
+    # Automatically merge minor and patch updates
+    commit-message:
+      prefix: "npm"
+      include: "scope"
+    # Security settings
+    security-updates-only: false
+    ignore:
+      # Ignore major version updates for specific packages
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    # Vulnerability alerts
+    vulnerability-alerts:
+      enabled: true
+    # Allow Dependabot to access private registries if needed
+    registries:
+      npmjs:
+        type: "npm-registry"
+        url: "https://registry.npmjs.org"
+        username: "${{ secrets.NPM_USERNAME }}"
+        password: "${{ secrets.NPM_PASSWORD }}"
+    # Configure update behavior
+    update-schedule: "live"
+    # Set minimum age for updates
+    minimum-age: 0
+    # Configure update strategy
+    update-strategy: "auto"
+    # Enable security fixes
+    security-fixes-only: false
+    # Auto-merge settings
+    auto-merge:
+      # Enable auto-merge for minor and patch updates
+      enabled: true
+      # Only auto-merge if tests pass
+      require-approval: false
+      # Auto-merge after tests pass
+      merge-strategy: "squash"
+      # Only auto-merge if CI passes
+      require-status-checks: true
+      # Specify which status checks must pass
+      required-status_checks:
+        - "test"
+        - "build"

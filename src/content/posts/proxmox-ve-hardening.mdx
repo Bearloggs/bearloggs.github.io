@@ -1,8 +1,8 @@
 ---
-title: 'Proxmox VE Hardening Guide'
-description: 'Secure your Proxmox VE server with VPN-only admin access, custom SSH port, and strict firewall rules. A practical guide to hardening your virtualization platform.'
+title: "Proxmox VE Hardening Guide"
+description: "Secure your Proxmox VE server with VPN-only admin access, custom SSH port, and strict firewall rules. A practical guide to hardening your virtualization platform."
 pubDate: 2025-04-21
-tags: ['proxmox', 'hardening', 'linux', 'devsecops']
+tags: ["proxmox", "hardening", "linux", "devsecops"]
 ---
 
 # Proxmox VE Hardening Guide (Debian, VPN-Only Admin, Custom SSH Port)
@@ -10,14 +10,14 @@ tags: ['proxmox', 'hardening', 'linux', 'devsecops']
 > Secure your Proxmox VE for Internet exposure using both OS- and application-level defenses: a random high-numbered SSH port, strict UFW firewalling, WireGuard VPN, and only VPN-based access for admin and SSH.
 
 ---
+
 ⚠️ **Warning: This Is Not an Exhaustive Security Checklist**
 
 - This guide covers essential steps for securing your server, but **it is not a complete or exhaustive list** of all possible security measures.
 - **Your specific environment may require additional precautions.** Review all relevant documentation, stay informed about current vulnerabilities, and regularly update your security practices.
 - **Be extremely careful**: Changing firewall, SSH, or VPN settings can lock you out if misconfigured. Always test changes in a separate session and ensure you have a way to recover access (such as console, KVM, or rescue mode) before proceeding.
 
-**Security is an ongoing process. Stay vigilant and adapt as your setup and the threat landscape evolve.**
----
+## **Security is an ongoing process. Stay vigilant and adapt as your setup and the threat landscape evolve.**
 
 ## Keep Debian and Proxmox Patched
 
@@ -38,18 +38,23 @@ Use a separate, non-root admin account for remote access/administration:
 sudo adduser adminuser
 sudo usermod -aG sudo adminuser
 ```
+
 > Replace `adminuser` with your username of choice.
 
 **Set up strong SSH keys (on your laptop):**
+
 ```bash
 ssh-copy-id adminuser@your.server.ip
 ```
+
 Or manually add your public key to `/home/adminuser/.ssh/authorized_keys`.
 
 > **Test login:**
+
 ```bash
 ssh adminuser@your.server.ip
 ```
+
 Before proceeding, **make sure key login for the new user works**!
 
 ---
@@ -59,14 +64,17 @@ Before proceeding, **make sure key login for the new user works**!
 ### Choose a Unique, High SSH Port
 
 - Pick an unused, random port between 49152–65535. Check open ports:
+
 ```bash
 sudo ss -tuln
 ```
+
 - Suppose you use **54321**.
 
 ### Edit SSH Config
 
 `/etc/ssh/sshd_config`
+
 ```
 Port 54321
 PermitRootLogin no
@@ -75,18 +83,22 @@ AllowUsers adminuser
 MaxAuthTries 3
 LoginGraceTime 30
 ```
+
 **Restart and TEST SSH:**
+
 ```bash
 sudo systemctl reload ssh
 ssh -p 54321 adminuser@your.server.ip
 ```
-*Do not lock yourself out!*
+
+_Do not lock yourself out!_
 
 ---
 
 ## Lock Down the UFW Firewall
 
 **Install UFW and set defaults:**
+
 ```bash
 sudo apt install ufw -y
 sudo ufw default deny incoming
@@ -94,9 +106,11 @@ sudo ufw default allow outgoing
 ```
 
 **Allow only your new SSH port** (for initial remote admin):
+
 ```bash
 sudo ufw allow 54321/tcp
 ```
+
 You'll further restrict this after VPN is set up.
 
 ---
@@ -114,18 +128,22 @@ You'll further restrict this after VPN is set up.
 ### Install and Configure WireGuard
 
 **a) Install:**
+
 ```bash
 sudo apt install wireguard -y
 ```
 
 **b) Generate VPN server keys:**
+
 ```bash
 umask 077
 wg genkey | tee server_private.key | wg pubkey > server_public.key
 ```
-(*Repeat on each client to generate individual keys*)
+
+(_Repeat on each client to generate individual keys_)
 
 **c) Configure WireGuard server** (`/etc/wireguard/wg0.conf`):
+
 ```ini
 [Interface]
 Address = 10.10.10.1/24
@@ -137,19 +155,23 @@ PrivateKey = (server_private.key contents)
 PublicKey = (client_public_key)
 AllowedIPs = 10.10.10.2/32
 ```
+
 **d) Enable IP Forwarding:**
+
 ```bash
 echo "net.ipv4.ip_forward=1" | sudo tee -a /etc/sysctl.conf
 sudo sysctl -p
 ```
 
 **e) Start and Enable WireGuard:**
+
 ```bash
 sudo systemctl enable wg-quick@wg0
 sudo systemctl start wg-quick@wg0
 ```
 
 **f) Client example config:**
+
 ```ini
 [Interface]
 PrivateKey = (client_private)
@@ -177,7 +199,8 @@ sudo ufw deny 54321/tcp                                   # Block SSH from publi
 sudo ufw enable
 sudo ufw status verbose
 ```
-*Now, only the VPN subnet can access SSH and GUI. VPN is your admin "door."*
+
+_Now, only the VPN subnet can access SSH and GUI. VPN is your admin "door."_
 
 ---
 
@@ -223,21 +246,21 @@ sudo ufw status verbose
 ## How to Manage UFW Firewall Rules
 
 - **Check active rules:**
-    ```bash
-    sudo ufw status verbose
-    ```
+  ```bash
+  sudo ufw status verbose
+  ```
 - **List rules, numbered (for easy removal):**
-    ```bash
-    sudo ufw status numbered
-    ```
+  ```bash
+  sudo ufw status numbered
+  ```
 - **Remove by number:**
-    ```bash
-    sudo ufw delete <number>
-    ```
+  ```bash
+  sudo ufw delete <number>
+  ```
 - **Remove by rule:**
-    ```bash
-    sudo ufw delete allow 51820/udp
-    ```
+  ```bash
+  sudo ufw delete allow 51820/udp
+  ```
 
 ---
 

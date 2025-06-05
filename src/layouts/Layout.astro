@@ -1,7 +1,6 @@
 ---
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
-import { ViewTransitions } from 'astro:transitions';
 
 interface Props {
   title: string;
@@ -15,12 +14,12 @@ interface Props {
 
 const {
   title,
-  description = "A comprehensive blog about Cybersecurity, DevSecOps, and MLOps. Explore in-depth articles, tutorials, and best practices for security professionals and developers.",
+  description = "A comprehensive blog about Cybersecurity. Explore in-depth articles, tutorials, and best practices for security professionals and developers.",
   image = "/default-og.png",
   article = false,
   publishDate,
   author = "Bearloggs",
-  keywords = "cybersecurity, devsecops, mlops"
+  keywords = "cybersecurity, devsecops, machine-learning"
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
@@ -59,8 +58,8 @@ const ogImage = new URL(image, Astro.site);
     <link rel="canonical" href={canonicalURL} />
     
     <!-- Robots Meta Tags -->
-    <meta name="robots" content="index, follow" />
-    <meta name="googlebot" content="index, follow" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="revisit-after" content="7 days" />
     <meta name="author" content={author} />
     
@@ -77,6 +76,20 @@ const ogImage = new URL(image, Astro.site);
     <meta property="og:image" content={ogImage} />
     <meta property="og:site_name" content="HacknWatch" />
     <meta property="og:locale" content="en_US" />
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:creator" content="@hacknwatch" />
+    
+    <!-- Additional Meta Tags -->
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="theme-color" content="#3B82F6" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="HacknWatch" />
 
     <!-- Article-specific Meta Tags -->
     {article && publishDate && (
@@ -91,8 +104,6 @@ const ogImage = new URL(image, Astro.site);
       </>
     )}
 
-    <ViewTransitions />
-    
     <!-- Theme Script -->
     <script is:inline>
       function applyTheme() {
@@ -105,14 +116,11 @@ const ogImage = new URL(image, Astro.site);
       
       // Apply theme on initial load
       applyTheme();
-      
-      // Handle theme changes during view transitions
-      document.addEventListener('astro:after-swap', applyTheme);
     </script>
 
     <!-- Structured Data -->
     {article && publishDate && (
-      <script type="application/ld+json" set:html={JSON.stringify({
+      <script is:inline type="application/ld+json" set:html={JSON.stringify({
         "@context": "https://schema.org",
         "@type": "BlogPosting",
         "headline": title,
@@ -120,7 +128,8 @@ const ogImage = new URL(image, Astro.site);
         "image": ogImage,
         "author": {
           "@type": "Person",
-          "name": author
+          "name": author,
+          "url": new URL("/about", Astro.site)
         },
         "publisher": {
           "@type": "Organization",
@@ -128,7 +137,8 @@ const ogImage = new URL(image, Astro.site);
           "logo": {
             "@type": "ImageObject",
             "url": new URL("/favicon-32x32.png", Astro.site)
-          }
+          },
+          "url": Astro.site
         },
         "datePublished": publishDate,
         "dateModified": publishDate,
@@ -137,13 +147,16 @@ const ogImage = new URL(image, Astro.site);
           "@id": canonicalURL
         },
         "keywords": keywords,
-        "inLanguage": "en-US"
+        "inLanguage": "en-US",
+        "wordCount": "1000",
+        "articleSection": "Cybersecurity",
+        "isAccessibleForFree": true
       })} />
     )}
     
     <!-- Default Structured Data for non-article pages -->
     {!article && (
-      <script type="application/ld+json" set:html={JSON.stringify({
+      <script is:inline type="application/ld+json" set:html={JSON.stringify({
         "@context": "https://schema.org",
         "@type": "WebSite",
         "name": "HacknWatch",
@@ -155,9 +168,22 @@ const ogImage = new URL(image, Astro.site);
           "logo": {
             "@type": "ImageObject",
             "url": new URL("/logo.png", Astro.site)
-          }
+          },
+          "url": Astro.site,
+          "sameAs": [
+            "https://github.com/hacknwatch",
+            "https://twitter.com/hacknwatch"
+          ]
         },
-        "inLanguage": "en-US"
+        "inLanguage": "en-US",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": `${Astro.site}/search?q={search_term_string}`
+          },
+          "query-input": "required name=search_term_string"
+        }
       })} />
     )}
   </head>

@@ -1,17 +1,13 @@
 ---
 import { getCollection } from 'astro:content';
+import { getUniqueTags, getTagCounts } from '../utils/posts';
 
-const posts = await getCollection('blog', ({ data }) => {
+const posts = await getCollection('posts', ({ data }) => {
   return import.meta.env.PROD ? !data.draft : true;
 });
 
-const tags = [...new Set(posts.flatMap(post => post.data.tags))].sort();
-
-// Count posts for each tag
-const tagCounts = tags.reduce((acc, tag) => {
-  acc[tag] = posts.filter(post => post.data.tags.includes(tag)).length;
-  return acc;
-}, {} as Record<string, number>);
+const tags = getUniqueTags(posts);
+const tagCounts = getTagCounts(posts);
 ---
 
 <section class="py-12 bg-gray-50 dark:bg-gray-800">
