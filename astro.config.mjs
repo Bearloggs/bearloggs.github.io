@@ -16,10 +16,7 @@ export default defineConfig({
         theme: "github-dark",
         wrap: true,
       },
-      remarkPlugins: [
-        remarkGfm,
-        remarkSmartypants,
-      ],
+      remarkPlugins: [remarkGfm, remarkSmartypants],
       rehypePlugins: [
         rehypeSlug,
         [
