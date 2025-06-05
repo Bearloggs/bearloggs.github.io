@@ -36,28 +36,3 @@ updates:
       # Ignore major version updates for specific packages
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
-    # Vulnerability alerts
-    vulnerability-alerts:
-      enabled: true
-    # Configure update behavior
-    update-schedule: "live"
-    # Set minimum age for updates
-    minimum-age: 0
-    # Configure update strategy
-    update-strategy: "auto"
-    # Enable security fixes
-    security-fixes-only: false
-    # Auto-merge settings
-    auto-merge:
-      # Enable auto-merge for minor and patch updates
-      enabled: true
-      # Only auto-merge if tests pass
-      require-approval: false
-      # Auto-merge after tests pass
-      merge-strategy: "squash"
-      # Only auto-merge if CI passes
-      require-status-checks: true
-      # Specify which status checks must pass
-      required-status_checks:
-        - "test"
-        - "build"
