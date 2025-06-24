@@ -1,0 +1,74 @@
+---
+title: Microsoft Entra ID Post-Exploitation : Introduction to GraphRunner"
+pubDate: 2025-06-24
+description: "Introduction to GraphRunner for Post-Exploitation in Microsoft Entra ID"
+tags: ["red-team", "azure", "cloud", "cloud-security"]
+---
+
+# Introduction to GraphRunner
+
+GraphRunner is a post-exploitation toolset developed by Beau Bullock and Steve Borosh from Black Hills Information Security. It is designed for interacting with Microsoft Entra ID (formerly Azure AD) accounts, offering various tools to access and manipulate data within a tenant.
+
+## Part I: Authentication, Reconnaissance, and Persistence
+
+### Authentication Modules
+
+- **Get-GraphTokens**: Utilizes the device-code login method to authenticate users to the Microsoft Graph API. Detection can be achieved by monitoring Entra ID Sign-In logs for device code authentication patterns.
+
+- **Get-AzureAppTokens**: Employs the OAuth flow to obtain access tokens via Azure AD applications. Monitoring Service Principal sign-ins can help identify suspicious activities.
+
+- **Token Refresh Modules**: Modules like `Invoke-RefreshGraphTokens`, `Invoke-RefreshAzureAppTokens`, and `Invoke-AutoTokenRefresh` aim to refresh tokens automatically. Detecting these activities is challenging due to inconsistent logging.
+
+### Reconnaissance and Enumeration Modules
+
+- **Invoke-GraphRecon**: Collects tenant information, including app permissions and user settings. Detection involves monitoring MicrosoftGraphActivityLogs for specific API calls.
+
+- **Invoke-GraphRunner**: Automates multiple reconnaissance modules, streamlining data collection. Its execution generates numerous events in the MicrosoftGraphActivityLogs.
+
+- **Invoke-GraphOpenInboxFinder**: Checks if users' inboxes are readable, aiding in identifying potential email-related security concerns. Detection can be done by monitoring specific API requests in the logs.
+
+### Persistence Modules
+
+- **Invoke-InjectOAuthApp**: Automates the deployment of an app registration in a Microsoft tenant, assigning various permissions without requiring administrative consent. Detection involves monitoring Azure Audit Logs for application additions and updates.
+
+- **Invoke-AddGroupMember**: Adds members to an Entra ID group. This activity can be detected by monitoring both Entra ID Audit Logs and Unified Audit Logs for group membership changes.
+
+## Part II: Pillage and Supplemental Modules
+
+### Pillage Modules
+
+- **Invoke-SearchSharePointAndOneDrive**: Searches across all SharePoint sites and OneDrive drives accessible to the user. Detection involves monitoring MicrosoftGraphActivityLogs and Unified Audit Logs for specific search and download activities.
+
+- **Invoke-ImmersiveFileReader**: Opens restricted files using the immersive reader. This module does not generate events in MicrosoftGraphActivityLogs but can be detected in the Unified Audit Log under the "Accessed file" operation.
+
+- **Invoke-SearchMailbox**: Searches for specific terms within the user's mailbox and can export messages. Detection involves monitoring API requests related to mailbox searches and message retrievals.
+
+### Supplemental Modules
+
+- **Invoke-SearchTeams**: Searches all Teams messages in channels readable by the current user.
+
+- **Invoke-SearchUserAttributes**: Searches for terms across all user attributes in a directory.
+
+- **Get-Inbox**: Retrieves the latest inbox items from a mailbox, including shared mailboxes.
+
+- **Get-TeamsChat**: Downloads full Teams chat conversations.
+
+## Detection and Prevention Strategies
+
+Detecting and preventing the misuse of GraphRunner involves several strategies:
+
+- **Monitoring Logs**: Regularly review Entra ID Sign-In logs, MicrosoftGraphActivityLogs, and Unified Audit Logs for unusual activities, such as unexpected device code authentications, Service Principal sign-ins, and abnormal API requests.
+
+- **Implementing KQL Queries**: Utilize Kusto Query Language (KQL) queries to identify specific indicators of compromise (IoCs) associated with GraphRunner modules. These queries can help pinpoint suspicious activities within your environment.
+
+- **Enhancing Security Posture**: Implement multi-factor authentication (MFA), restrict app registrations, and regularly audit permissions and access controls to minimize the risk of exploitation.
+
+## Conclusion
+
+GraphRunner presents a comprehensive suite of tools that can be leveraged for both legitimate security assessments and malicious activities. Understanding its modules and their behaviors is crucial for defenders aiming to detect and prevent potential abuses within their Microsoft Entra ID environments. By implementing robust monitoring and preventive measures, organizations can enhance their security posture against threats posed by tools like GraphRunner.
+
+For detailed KQL queries and further insights, refer to the original articles:
+
+- Part I: [A Defender's Guide to GraphRunner — Part I](https://www.invictus-ir.com/news/a-defenders-guide-to-graphrunner-part-i)
+
+- Part II: [A Defender's Guide to GraphRunner — Part II](https://www.invictus-ir.com/news/a-defenders-guide-to-graphrunner-part-ii)
