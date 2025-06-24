@@ -19,7 +19,7 @@
     "@astrojs/sitemap": "^3.4.1",
     "@astrojs/tailwind": "^6.0.2",
     "@tailwindcss/typography": "^0.5.16",
-    "astro": "^5.10.0",
+    "astro": "^5.10.1",
     "marked": "^15.0.12",
     "rehype-autolink-headings": "^7.1.0",
     "rehype-slug": "^6.0.0",
@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
-    "prettier": "^3.2.5",
+    "prettier": "^3.6.0",
     "prettier-plugin-astro": "^0.14.1",
     "typescript": "^5.8.3",
     "rimraf": "^5.0.5",
