@@ -27,7 +27,33 @@ updates:
     commit-message:
       prefix: "npm"
       include: "scope"
+    # More intelligent ignore rules
     ignore:
-      # Ignore major version updates for specific packages
-      - dependency-name: "*"
+      # Ignore major version updates for specific packages that might break things
+      - dependency-name: "astro"
         update-types: ["version-update:semver-major"]
+      - dependency-name: "@astrojs/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "tailwindcss"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@tailwindcss/*"
+        update-types: ["version-update:semver-major"]
+      # Allow major updates for security-focused packages
+      - dependency-name: "marked"
+        update-types: ["version-update:semver-patch", "version-update:semver-minor"]
+      - dependency-name: "shiki"
+        update-types: ["version-update:semver-patch", "version-update:semver-minor"]
+
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    open-pull-requests-limit: 5
+    target-branch: "main"
+    commit-message:
+      prefix: "ci"
+      include: "scope"

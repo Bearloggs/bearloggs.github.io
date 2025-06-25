@@ -30,7 +30,7 @@ A modern, performant personal blog built with Astro, TypeScript, and Tailwind CS
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/your-repo-name.git
+   git clone https://github.com/Bearloggs/bearloggs.github.io.git
    cd your-repo-name
    ```
 
@@ -47,12 +47,23 @@ A modern, performant personal blog built with Astro, TypeScript, and Tailwind CS
 
 ## Available Scripts
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
+- `npm run dev` - Start the development server with hot reload
+- `npm run build` - Build the site for production
+- `npm run preview` - Preview the production build locally
+- `npm run check` - Run Astro's built-in diagnostics (type, config, and content checks)
 - `npm run format` - Format code with Prettier
 - `npm run typecheck` - Check TypeScript types
+
+## Continuous Integration (CI) & Security
+
+This project uses GitHub Actions for automated testing and security checks:
+
+- **Test and Security Workflow** (`.github/workflows/test.yml`):
+  - Runs on all pull requests and pushes to the `main` branch.
+  - Steps include type checking, code formatting, building, and running tests.
+  - If a pull request has the `security` label, additional security checks (`npm audit` and `audit-ci`) are run automatically.
+
+You can view workflow results in the GitHub Actions tab of your repository.
 
 ## Project Structure
 
