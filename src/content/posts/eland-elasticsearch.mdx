@@ -311,7 +311,6 @@ def anomaly_detection_example():
 While Eland provides powerful capabilities for machine learning with Elasticsearch, there are some important limitations to be aware of:
 
 1. **Supported Model Types**
-
    - Only tree-based models are currently supported for deployment to Elasticsearch:
      - DecisionTreeClassifier
      - DecisionTreeRegressor
@@ -324,13 +323,11 @@ While Eland provides powerful capabilities for machine learning with Elasticsear
    - Unsupervised learning models (like IsolationForest) are not supported
 
 2. **Data Processing Limitations**
-
    - While you can convert pandas DataFrames to Eland DataFrames using `ed.pandas_to_eland()`, Eland DataFrames can only be used for data processing
    - You cannot train models directly on Eland DataFrames - you need to convert back to pandas using `to_pandas()`
    - You cannot perform inference directly on data stored in Elasticsearch
 
 3. **Performance Constraints**
-
    - There are limits to how much data you can use for inference at once - large batches may result in timeouts
    - Model deployment requires appropriate Elasticsearch license (X-Pack or Elastic Cloud)
 
