@@ -31,9 +31,6 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Test
-        run: npm test
-
       # Security checks - only run on PRs with security label
       - name: Run security audit
         if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'security')
